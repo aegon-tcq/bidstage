@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "363078006751",
+    "firebase_url": "https://bidstage-ade14.firebaseio.com",
+    "project_id": "bidstage-ade14",
+    "storage_bucket": "bidstage-ade14.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:363078006751:android:644ddea56db25b5d63366a",
+        "android_client_info": {
+          "package_name": "com.bidstage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "363078006751-c078tu6b4amiv4vg9prgug92rl0ji9fb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bidstage",
+            "certificate_hash": "f10fc8ba3b9bd4daae641f1c8ec439c1591539e0"
+          }
+        },
+        {
+          "client_id": "363078006751-k2o40anticduj6qqpls1o6evflf1pb3q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrprpc2qAFhNQv3cvdEcF4OnlAjuPxzFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "363078006751-k2o40anticduj6qqpls1o6evflf1pb3q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
