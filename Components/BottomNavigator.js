@@ -9,7 +9,7 @@ import { AnimatedTabBarNavigator } from "react-native-animated-nav-tab-bar";
 
 import Icon from 'react-native-vector-icons/Feather';
 
-import HomeScreen from '../screens/HomeScreen.js';
+import ProjectDetailNavigator from './ProjectDetailNavigator';
 import SearchScreen from '../screens/SearchScreen.js';
 import Myprojects from '../screens/Myprojects.js';
 import ProfileScreen from '../screens/ProfileScreen.js';
@@ -43,7 +43,7 @@ export default class BottomNavigator extends Component {
                 >
                     <Tabs.Screen
                         name="Home"
-                        component={HomeScreen}
+                        component={ProjectDetailNavigator}
                         options={{
                             tabBarIcon: ({ focused, color }) => (
                                 <Icon

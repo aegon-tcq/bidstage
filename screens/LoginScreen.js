@@ -15,7 +15,7 @@ import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import auth from '@react-native-firebase/auth';
-
+import { CirclesLoader } from 'react-native-indicator';
 
 class LoginScreen extends Component {
 
@@ -148,171 +148,193 @@ class LoginScreen extends Component {
                 >
                     {/*Login Text */}
 
-                    <TouchableOpacity
-                        onPress={() => this.props.navigation.goBack()}
-                        style={{
-                            marginTop: 25,
-                            marginLeft: 15
-                        }}
+                    <Animatable.View
+                        animation='fadeInRight'
+                        duration={1000}
                     >
-                        <FontAwesome
-                            name="arrow-circle-left"
-                            color='#FFF'
-                            size={30}
-                        />
-                    </TouchableOpacity>
-                    <View style={styles.view1}>
-                        <Text style={styles.login}>Login</Text>
-                        <Text style={styles.logtxt}>Please login In to continue.</Text>
-                    </View>
+                        <TouchableOpacity
+                            onPress={() => this.props.navigation.goBack()}
+                            style={{
+                                marginTop: 25,
+                                marginLeft: 15
+                            }}
+                        >
+                            <FontAwesome
+                                name="arrow-circle-left"
+                                color='#FFF'
+                                size={30}
+                            />
+                        </TouchableOpacity>
+                    </Animatable.View>
+                    <Animatable.View
+                        animation='fadeInLeft'
+                        duration={1000}
+                    >
+                        <View style={styles.view1}>
+                            <Text style={styles.login}>Login</Text>
+                            <Text style={styles.logtxt}>Please login In to continue.</Text>
+                        </View>
+                    </Animatable.View>
 
                     {/*Login Form */}
 
-
-                    <View style={styles.logview}>
-                        <ScrollView showsVerticalScrollIndicator={false}>
-                            <Text style={[styles.text_footer, {
-                                color: colors.text
-                            }]}>Email or Phone no.</Text>
-                            <View style={styles.action}>
-                                <FontAwesome
-                                    name="user-o"
-                                    color={colors.text}
-                                    size={20}
-                                />
-                                <TextInput
-                                    placeholder="Your Email"
-                                    placeholderTextColor="#666666"
-                                    style={[styles.textInput, {
-                                        color: colors.text
-                                    }]}
-                                    autoCapitalize="none"
-                                    onChangeText={this.textInputChange}
-                                    onEndEditing={this.handleValidUser}
-                                />
-                                {this.state.check_textInputChange ?
-                                    <Animatable.View
-                                        animation="bounceIn"
-                                    >
-                                        <Feather
-                                            name="check-circle"
-                                            color="green"
-                                            size={20}
-                                        />
-                                    </Animatable.View>
-                                    : null}
-                            </View>
-                            <Text style={[styles.text_footer, {
-                                color: colors.text,
-                                marginTop: 5
-                            }]}>Password</Text>
-                            <View style={styles.action}>
-                                <Feather
-                                    name="lock"
-                                    color={colors.text}
-                                    size={20}
-                                />
-                                <TextInput
-                                    placeholder="Your Password"
-                                    placeholderTextColor="#666666"
-                                    secureTextEntry={this.state.secureTextEntry ? true : false}
-                                    style={[styles.textInput, {
-                                        color: colors.text
-                                    }]}
-                                    autoCapitalize="none"
-                                    onChangeText={this.handlePasswordChange}
-
-                                />
-                                <TouchableOpacity
-                                    onPress={this.updateSecureTextEntry}
-                                >
-                                    {this.state.secureTextEntry ?
-                                        <Feather
-                                            name="eye-off"
-                                            color="grey"
-                                            size={20}
-                                        />
-                                        :
-                                        <Feather
-                                            name="eye"
-                                            color="grey"
-                                            size={20}
-                                        />
-                                    }
-                                </TouchableOpacity>
-                            </View>
-                            <TouchableOpacity onPress={this.onForgotPress}>
-                                <Text style={{ color: '#05375a', marginTop: 10 }}>Forgot password?</Text>
-                            </TouchableOpacity>
-                            {this.state.error == '' ? null :
-                                <Animatable.View animation="fadeInLeft" duration={500}>
-                                    <Text style={{color:'#EA3456'}}>Username or Password is Incorrect.</Text>
-                                </Animatable.View>
-                            }
-                            <View style={{
-                                alignItems: 'flex-end',
-                                padding:10
-                            }}>
-                                <TouchableOpacity
-                                    style={{
-                                        width: 100,
-                                        padding: 10,
-                                        paddingHorizontal: 20,
-                                        backgroundColor: '#7133D1',
-                                        marginTop: 15,
-                                        borderRadius: 20,
-                                        shadowColor: "rgba(0,0,0,1)",
-                                        shadowOffset: {
-                                            height: 5,
-                                            width: 5
-                                        },
-                                        elevation: 5,
-                                        shadowOpacity: 0.15,
-                                        shadowRadius: 0,
-                                    }}
-                                    onPress={this.loginHandle}
-                                >
-                                    {this.state.loading ? <ActivityIndicator size='small' color='#f1faee' /> :
-                                        <View style={{
-
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                        }}>
-                                            <Text style={styles.textSign}>LogIn</Text>
-                                            <FontAwesome
-                                                name="arrow-circle-right"
-                                                color='#FFF'
+                    <Animatable.View
+                        animation='zoomIn'
+                        duration={1000}
+                        style={styles.logview}
+                    >
+                        {this.state.loading ? <View style={{
+                            flex: 1,
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }} >
+                            <CirclesLoader color='#7133D1' />
+                        </View> :
+                            <ScrollView showsVerticalScrollIndicator={false}>
+                                <Text style={[styles.text_footer, {
+                                    color: colors.text
+                                }]}>Email or Phone no.</Text>
+                                <View style={styles.action}>
+                                    <FontAwesome
+                                        name="user-o"
+                                        color={colors.text}
+                                        size={20}
+                                    />
+                                    <TextInput
+                                        placeholder="Your Email"
+                                        placeholderTextColor="#666666"
+                                        style={[styles.textInput, {
+                                            color: colors.text
+                                        }]}
+                                        autoCapitalize="none"
+                                        onChangeText={this.textInputChange}
+                                        onEndEditing={this.handleValidUser}
+                                    />
+                                    {this.state.check_textInputChange ?
+                                        <Animatable.View
+                                            animation="bounceIn"
+                                        >
+                                            <Feather
+                                                name="check-circle"
+                                                color="green"
                                                 size={20}
                                             />
-                                        </View>
-                                    }
+                                        </Animatable.View>
+                                        : null}
+                                </View>
+                                <Text style={[styles.text_footer, {
+                                    color: colors.text,
+                                    marginTop: 5
+                                }]}>Password</Text>
+                                <View style={styles.action}>
+                                    <Feather
+                                        name="lock"
+                                        color={colors.text}
+                                        size={20}
+                                    />
+                                    <TextInput
+                                        placeholder="Your Password"
+                                        placeholderTextColor="#666666"
+                                        secureTextEntry={this.state.secureTextEntry ? true : false}
+                                        style={[styles.textInput, {
+                                            color: colors.text
+                                        }]}
+                                        autoCapitalize="none"
+                                        onChangeText={this.handlePasswordChange}
 
+                                    />
+                                    <TouchableOpacity
+                                        onPress={this.updateSecureTextEntry}
+                                    >
+                                        {this.state.secureTextEntry ?
+                                            <Feather
+                                                name="eye-off"
+                                                color="grey"
+                                                size={20}
+                                            />
+                                            :
+                                            <Feather
+                                                name="eye"
+                                                color="grey"
+                                                size={20}
+                                            />
+                                        }
+                                    </TouchableOpacity>
+                                </View>
+                                <TouchableOpacity onPress={this.onForgotPress}>
+                                    <Text style={{ color: '#05375a', marginTop: 10 }}>Forgot password?</Text>
                                 </TouchableOpacity>
-                            </View>
-                        </ScrollView>
-                    </View>
-                    <TouchableOpacity
-                        onPress={() => this.props.navigation.navigate('SignupScreen')}
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            marginTop: 40
-                        }}
+                                {this.state.error == '' ? null :
+                                    <Animatable.View animation="fadeInLeft" duration={500}>
+                                        <Text style={{ color: '#EA3456' }}>Username or Password is Incorrect.</Text>
+                                    </Animatable.View>
+                                }
+                                <View style={{
+                                    alignItems: 'flex-end',
+                                    padding: 10
+                                }}>
+                                    <TouchableOpacity
+                                        style={{
+                                            width: 100,
+                                            padding: 10,
+                                            paddingHorizontal: 20,
+                                            backgroundColor: '#7133D1',
+                                            marginTop: 15,
+                                            borderRadius: 20,
+                                            shadowColor: "rgba(0,0,0,1)",
+                                            shadowOffset: {
+                                                height: 5,
+                                                width: 5
+                                            },
+                                            elevation: 5,
+                                            shadowOpacity: 0.15,
+                                            shadowRadius: 0,
+                                        }}
+                                        onPress={this.loginHandle}
+                                    >
+                                            <View style={{
+
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                            }}>
+                                                <Text style={styles.textSign}>LogIn</Text>
+                                                <FontAwesome
+                                                    name="arrow-circle-right"
+                                                    color='#FFF'
+                                                    size={20}
+                                                />
+                                            </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </ScrollView>}
+                    </Animatable.View>
+                    <Animatable.View
+                        animation='bounceInUp'
+                        duration={1000}
                     >
-                        <Text style={{
-                            fontFamily: "roboto-regular",
-                            color: "rgba(29,53,87,1)",
-                            fontSize: 15
-                        }}>
-                            Dont have account?
+                        <TouchableOpacity
+                            onPress={() => this.props.navigation.navigate('SignupScreen')}
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                marginTop: 40
+                            }}
+                        >
+                            <Text style={{
+                                fontFamily: "roboto-regular",
+                                color: "rgba(29,53,87,1)",
+                                fontSize: 15
+                            }}>
+                                Dont have account?
                        </Text>
-                        <Text style={{
-                            fontFamily: "roboto-700",
-                            color: "rgba(113,51,209,1)",
-                            fontSize: 18,
-                            fontWeight: 'bold'
-                        }}>Sign UP</Text>
-                    </TouchableOpacity>
+                            <Text style={{
+                                fontFamily: "roboto-700",
+                                color: "rgba(113,51,209,1)",
+                                fontSize: 18,
+                                fontWeight: 'bold'
+                            }}>Sign UP</Text>
+                        </TouchableOpacity>
+                    </Animatable.View>
                 </ImageBackground>
 
             </View>

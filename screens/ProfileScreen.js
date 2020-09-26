@@ -5,22 +5,20 @@ import {
   Dimensions,
   StyleSheet,
   ImageBackground,
-  Button,
   TouchableOpacity,
-  ActivityIndicator,
-  Switch
 } from 'react-native';
-import { Rating, AirbnbRating } from 'react-native-ratings';
+import { AirbnbRating } from 'react-native-ratings';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import auth from '@react-native-firebase/auth';
 import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/Entypo';
 import database from '@react-native-firebase/database';
-
+import { CirclesLoader } from 'react-native-indicator';
+import * as Animatable from 'react-native-animatable';
 
 export default class ProfileScreen extends Component {
 
-  constructor(props){
+  constructor(props) {
     super(props)
     this.state = {
       loading: null,
@@ -34,7 +32,6 @@ export default class ProfileScreen extends Component {
 
   componentDidMount() {
 
-    // this.setState({loading:true})
     database()
       .ref('/users/' + auth().currentUser.email.slice(0, -4))
       .on('value', snapshot => {
@@ -48,12 +45,12 @@ export default class ProfileScreen extends Component {
         console.log('review ', this.state.reviews)
       });
 
-     this.setloading()
+    this.setloading()
   }
 
 
   setloading = () => {
-    setTimeout(()=>{ this.setState({loading:false}) },1000);
+    setTimeout(() => { this.setState({ loading: false }) }, 1000);
   }
   toggleModalskill = () => {
     this.setState({ isModalVisibleskill: !this.state.isModalVisibleskill });
@@ -75,11 +72,11 @@ export default class ProfileScreen extends Component {
   }
 
   signout = () => {
-    this.setState({loading:true})
+    this.setState({ loading: true })
     auth()
       .signOut()
       .then(() => console.log('User signed out!'));
-    this.setState({loading:false})
+      setTimeout(() => { this.setState({ loading: false }) }, 1000);
   }
 
 
@@ -89,36 +86,42 @@ export default class ProfileScreen extends Component {
     switch (this.state.loading) {
       case false:
         return (
-          <View style={styles.container}>
+          <Animatable.View
+            animation='zoomIn'
+            duration={600}
+            style={styles.container}
+          >            
             <ImageBackground
               source={require('../assets/mobile-bg-new.png')}
               resizeMode='stretch'
               style={styles.image2}
               imageStyle={styles.image2_imageStyle}
             >
-              <View
+              <Animatable.View
+              animation='flipInX'
+                duration={1000}
                 style={styles.linearGradient}
               >
-                <FontAwesome
-                  name="user-circle-o"
-                  color='#F1FAEE'
-                  size={100}
-                />
-                <View style={styles.profiledetails}>
-                  <Text style={{
-                    fontWeight: 'bold',
-                    color: '#F1FAEE'
-                  }}>{user.email}</Text>
-                  <AirbnbRating
-                    count={5}
-                    reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
-                    defaultRating={this.state.rating}
-                    size={20}
-                    isDisabled={true}
-                    reviewSize={0}
+                  <FontAwesome
+                    name="user-circle-o"
+                    color='#F1FAEE'
+                    size={100}
                   />
-                </View>
-              </View>
+                  <View style={styles.profiledetails}>
+                    <Text style={{
+                      fontWeight: 'bold',
+                      color: '#F1FAEE'
+                    }}>{user.email}</Text>
+                    <AirbnbRating
+                      count={5}
+                      reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
+                      defaultRating={this.state.rating}
+                      size={20}
+                      isDisabled={true}
+                      reviewSize={0}
+                    />
+                  </View>
+              </Animatable.View>
             </ImageBackground>
             <Modal
               isVisible={this.state.isModalVisibleskill}
@@ -157,35 +160,56 @@ export default class ProfileScreen extends Component {
               </View>
             </Modal>
             <View style={styles.bottom}>
-              <TouchableOpacity
-                onPress={this.toggleModalskill}
-                style={styles.about}
+              <Animatable.View
+                animation='fadeInRight'
+                duration={1000}
               >
-                <Text style={styles.abouttxt}>
-                  Skills
+                <TouchableOpacity
+                  onPress={this.toggleModalskill}
+                  style={styles.about}
+                >
+                  <Text style={styles.abouttxt}>
+                    Skills
                   </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={this.toggleModalreview}
-                style={styles.about}
+                </TouchableOpacity>
+              </Animatable.View>
+              <Animatable.View
+                animation='fadeInRight'
+                duration={1100}
               >
-                <Text style={styles.abouttxt}>
-                  Reviews
+                <TouchableOpacity
+                  onPress={this.toggleModalreview}
+                  style={styles.about}
+                >
+                  <Text style={styles.abouttxt}>
+                    Reviews
                   </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={this.signout}
-                style={styles.about}
+                </TouchableOpacity>
+              </Animatable.View>
+              <Animatable.View
+                animation='fadeInRight'
+                duration={1200}
               >
-                <Text style={styles.abouttxt}>
-                  LogOut
+                <TouchableOpacity
+                  onPress={this.signout}
+                  style={styles.about}
+                >
+                  <Text style={styles.abouttxt}>
+                    LogOut
                   </Text>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </Animatable.View>
             </View>
-          </View>
+          </Animatable.View>
         )
       default:
-        return <ActivityIndicator style={{flex:1,}} size='large' color='#15223D' />
+        return <View style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center'
+        }} >
+          <CirclesLoader color='#7133D1' />
+        </View>
     }
 
   }
@@ -229,7 +253,7 @@ const styles = StyleSheet.create({
     padding: 10
   },
   bottom: {
-    flex:1,
+    flex: 1,
     padding: 5,
     backgroundColor: '#FFF',
   },
@@ -238,8 +262,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 15,
     borderRadius: 20,
-    borderBottomWidth:0.5,
-    borderColor:'#e0e7e9'
+    borderBottomWidth: 0.5,
+    borderColor: '#e0e7e9'
 
   },
   abouttxt: {

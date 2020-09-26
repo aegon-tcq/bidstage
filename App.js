@@ -1,15 +1,6 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-// import 'react-native-gesture-handler';
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
-  Dimensions
 } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -19,9 +10,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from './screens/SplashScreen.js';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen.js';
-import HomeScreen from './screens/HomeScreen.js';
 import auth from '@react-native-firebase/auth';
-import Loader from 'react-native-mask-loader';
 import BottomNavigator from './Components/BottomNavigator.js';
 const Stack = createStackNavigator();
 
