@@ -27,18 +27,20 @@ export default class BottomNavigator extends Component {
                         inactiveTintColor: '#F1FAEE',
                         activeBackgroundColor: '#F1FAEE',
                         tabStyle: {
-                            borderTopLeftRadius: 20,
-                            borderTopRightRadius: 20,
+                            borderRadius: 30,
                             backgroundColor: '#7d86f8',
-                            paddingTop:5,
-                            paddingBottom:5
-                            
-                        }
+                            paddingTop: 5,
+                            paddingBottom: 5,
+                            marginBottom: 5,
+                            marginLeft: '2.5%',
+                            width: '95%',
+                        },
+                        backgroundColor:'#FFF'
                     }}
-                    
+
                     appearence={{
-                        topPadding:5,
-                        horizontalPadding:15
+                        topPadding: 5,
+                        horizontalPadding: 15,
                     }}
                 >
                     <Tabs.Screen
@@ -55,7 +57,7 @@ export default class BottomNavigator extends Component {
                                 />
                             )
                         }}
-                        
+
                     />
                     <Tabs.Screen
                         name="Search"

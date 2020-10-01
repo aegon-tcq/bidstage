@@ -151,6 +151,7 @@ class LoginScreen extends Component {
                     <Animatable.View
                         animation='fadeInRight'
                         duration={1000}
+                        useNativeDriver={true}
                     >
                         <TouchableOpacity
                             onPress={() => this.props.navigation.goBack()}
@@ -169,6 +170,7 @@ class LoginScreen extends Component {
                     <Animatable.View
                         animation='fadeInLeft'
                         duration={1000}
+                        useNativeDriver={true}
                     >
                         <View style={styles.view1}>
                             <Text style={styles.login}>Login</Text>
@@ -182,6 +184,7 @@ class LoginScreen extends Component {
                         animation='zoomIn'
                         duration={1000}
                         style={styles.logview}
+                        useNativeDriver={true}
                     >
                         {this.state.loading ? <View style={{
                             flex: 1,
@@ -213,6 +216,7 @@ class LoginScreen extends Component {
                                     {this.state.check_textInputChange ?
                                         <Animatable.View
                                             animation="bounceIn"
+                                            useNativeDriver={true}
                                         >
                                             <Feather
                                                 name="check-circle"
@@ -309,8 +313,9 @@ class LoginScreen extends Component {
                             </ScrollView>}
                     </Animatable.View>
                     <Animatable.View
-                        animation='bounceInUp'
-                        duration={1000}
+                        animation='fadeInDown'
+                        duration={1100}
+                        useNativeDriver={true}
                     >
                         <TouchableOpacity
                             onPress={() => this.props.navigation.navigate('SignupScreen')}

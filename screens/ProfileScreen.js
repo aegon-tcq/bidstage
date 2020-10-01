@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ImageBackground,
   TouchableOpacity,
+  FlatList
 } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -13,7 +14,7 @@ import auth from '@react-native-firebase/auth';
 import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/Entypo';
 import database from '@react-native-firebase/database';
-import { CirclesLoader } from 'react-native-indicator';
+import { BubblesLoader } from 'react-native-indicator';
 import * as Animatable from 'react-native-animatable';
 
 export default class ProfileScreen extends Component {
@@ -76,7 +77,7 @@ export default class ProfileScreen extends Component {
     auth()
       .signOut()
       .then(() => console.log('User signed out!'));
-      setTimeout(() => { this.setState({ loading: false }) }, 1000);
+      setTimeout(() => { this.setState({ loading: false }) }, 1500);
   }
 
 
@@ -92,7 +93,7 @@ export default class ProfileScreen extends Component {
             style={styles.container}
           >            
             <ImageBackground
-              source={require('../assets/mobile-bg-new.png')}
+              source={require('../assets/ProfileBackground.png')}
               resizeMode='stretch'
               style={styles.image2}
               imageStyle={styles.image2_imageStyle}
@@ -104,13 +105,13 @@ export default class ProfileScreen extends Component {
               >
                   <FontAwesome
                     name="user-circle-o"
-                    color='#F1FAEE'
+                    color='#FF3E89'
                     size={100}
                   />
                   <View style={styles.profiledetails}>
                     <Text style={{
                       fontWeight: 'bold',
-                      color: '#F1FAEE'
+                      color: '#15223D'
                     }}>{user.email}</Text>
                     <AirbnbRating
                       count={5}
@@ -155,7 +156,15 @@ export default class ProfileScreen extends Component {
                   />
                 </TouchableOpacity>
                 <View style={{ alignItems: 'center' }}><Text style={{ fontWeight: 'bold' }}>Review</Text></View>
-                <Text style={{ marginTop: 5, fontSize: 15, color: '#15223D' }}>{this.showskills()}</Text>
+                <FlatList 
+                  data={this.state.reviews}
+                  renderItem={({ item }) => (
+                      <View style={styles.container}>
+                        <Text style={styles.title}>{item.title}</Text>
+                      </View>
+                  )}
+                
+                />
 
               </View>
             </Modal>
@@ -208,7 +217,7 @@ export default class ProfileScreen extends Component {
           alignItems: 'center',
           justifyContent: 'center'
         }} >
-          <CirclesLoader color='#7133D1' />
+          <BubblesLoader color='#7d86f8' />
         </View>
     }
 
@@ -239,8 +248,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
     width: '90%',
-    height: '30%',
-    marginTop: '10%',
+    height: '50%',
+    marginTop: '40%',
     borderRadius: 20,
     shadowColor: "rgba(0,0,0,1)",
     shadowOffset: {

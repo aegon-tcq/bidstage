@@ -6,12 +6,12 @@ import {
   StyleSheet,
   Dimensions,
   Image,
-  FlatList
+  FlatList,
 
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-import { CirclesLoader } from 'react-native-indicator';
+import { BubblesLoader } from 'react-native-indicator';
 import * as Animatable from 'react-native-animatable';
 
 const { width, height } = Dimensions.get('window');
@@ -43,7 +43,7 @@ export default class HomeSreen extends Component {
         }
         this.setState({ catgories: data.slice(1) })
       });
-    setTimeout(() => { this.setState({ loading: false }) }, 1000);
+    setTimeout(() => { this.setState({ loading: false }) }, 1500);
   }
 
   sout = () => {
@@ -56,19 +56,20 @@ export default class HomeSreen extends Component {
     switch (this.state.loading) {
       case false:
         return (
-          <View style={{ height: '92%', backgroundColor: '#FFF' }}>
+          <View style={{ backgroundColor: '#FFF'}}>
             <Animatable.View
               animation='fadeInDown'
               duration={1000}
             >
               <View style={styles.topview}>
                 <Text style={styles.header}>Explore Projects</Text>
+                <Image />
               </View>
             </Animatable.View>
             <Animatable.View
               animation='bounceInUp'
               duration={1000}
-              style={{height:'92%'}}
+              style={{ height:'92%' ,backgroundColor: '#FFF' }}
             >
               <FlatList
                 showsVerticalScrollIndicator={false}
@@ -77,7 +78,7 @@ export default class HomeSreen extends Component {
                 keyExtractor={item => item.title}
                 renderItem={({ item }) => (
                   <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('ProjectListingScreen')}
+                    onPress={() => this.props.navigation.navigate('ProjectListingScreen',{CategoryName:String(item.title)})}
                   >
                     <View style={styles.container}>
                       <Image style={styles.photo} source={{ uri: item.url }} />
@@ -86,7 +87,9 @@ export default class HomeSreen extends Component {
                   </TouchableOpacity>
                 )}
               />
+              <View style={{height:'10%'}}></View>
             </Animatable.View>
+            
           </View>
         )
       default:
@@ -95,7 +98,7 @@ export default class HomeSreen extends Component {
           alignItems: 'center',
           justifyContent: 'center'
         }} >
-          <CirclesLoader color='#7d86f8' />
+          <BubblesLoader color='#7d86f8' />
         </View>
     }
   }
@@ -130,7 +133,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#15223D',
-    borderColor: '#9454f4',
+    borderColor: '#ff7aa2',
     borderTopWidth: 0.5,
     paddingTop: 10,
     paddingHorizontal: 15
