@@ -6,16 +6,11 @@ import {
 } from 'react-native';
 
 
-export default class SearchScreen extends Component{
-  sout=()=>{
-    auth()
-  .signOut()
-  .then(() => console.log('User signed out!'));
-  }
+export default class PrposalsScreen extends Component{
   render(){
     return(
       <View>
-        <Text>search</Text>
+        <Text>PrposalsScreen</Text>
       </View>
     )
   }

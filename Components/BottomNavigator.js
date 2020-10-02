@@ -8,9 +8,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AnimatedTabBarNavigator } from "react-native-animated-nav-tab-bar";
 
 import Icon from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import ProjectDetailNavigator from './ProjectDetailNavigator';
-import SearchScreen from '../screens/SearchScreen.js';
+import PrposalsScreen from '../screens/PrposalsScreen.js';
 import Myprojects from '../screens/Myprojects.js';
 import ProfileScreen from '../screens/ProfileScreen.js';
 
@@ -60,12 +61,12 @@ export default class BottomNavigator extends Component {
 
                     />
                     <Tabs.Screen
-                        name="Search"
-                        component={SearchScreen}
+                        name="Proposals"
+                        component={PrposalsScreen}
                         options={{
                             tabBarIcon: ({ focused, color, size }) => (
-                                <Icon
-                                    name="search"
+                                <MaterialCommunityIcons
+                                    name="inbox-arrow-down"
                                     size={24}
                                     color={focused ? color : "#222222"}
                                     focused={focused}
@@ -75,12 +76,12 @@ export default class BottomNavigator extends Component {
                         }}
                     />
                     <Tabs.Screen
-                        name="Projects"
+                        name="My Projects"
                         component={Myprojects}
                         options={{
                             tabBarIcon: ({ focused, color, size }) => (
-                                <Icon
-                                    name="save"
+                                <MaterialCommunityIcons
+                                    name="form-select"
                                     size={24}
                                     color={focused ? color : "#222222"}
                                     focused={focused}
