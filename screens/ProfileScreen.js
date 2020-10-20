@@ -12,7 +12,10 @@ import { AirbnbRating } from 'react-native-ratings';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import auth from '@react-native-firebase/auth';
 import Modal from 'react-native-modal';
-import Icon from 'react-native-vector-icons/Entypo';
+import Entypo from 'react-native-vector-icons/Entypo';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import database from '@react-native-firebase/database';
 import { BubblesLoader } from 'react-native-indicator';
 import * as Animatable from 'react-native-animatable';
@@ -25,9 +28,10 @@ export default class ProfileScreen extends Component {
       loading: null,
       isModalVisibleskill: false,
       isModalVisiblereview: false,
-      rating: null,
+      rating: 0.0,
+      ratingcount:0.0,
       skills: [],
-      reviews: null
+      reviews: []
     }
   }
 
@@ -36,14 +40,19 @@ export default class ProfileScreen extends Component {
     database()
       .ref('/users/' + auth().currentUser.email.slice(0, -4))
       .on('value', snapshot => {
-        console.log('User data: ', snapshot.val());
+        
         this.setState({
-          reviews: snapshot.val()['review'],
           skills: snapshot.val()['skills'],
-          rating: snapshot.val()['rating']
+          rating: snapshot.val()['rating'],
+          ratingcount:snapshot.val()['ratingcount']
         })
-        console.log('skills', this.state.skills)
-        console.log('review ', this.state.reviews)
+        let newreviews = []
+        for(let key in snapshot.val()['review']){
+          newreviews.push(snapshot.val()['review'][key]); 
+        }
+        this.setState({reviews:newreviews});
+        console.log('rating  ',this.state.rating)
+        console.log('rating count ',this.state.ratingcount)
       });
 
     this.setloading()
@@ -77,7 +86,7 @@ export default class ProfileScreen extends Component {
     auth()
       .signOut()
       .then(() => console.log('User signed out!'));
-      setTimeout(() => { this.setState({ loading: false }) }, 1500);
+    setTimeout(() => { this.setState({ loading: false }) }, 1500);
   }
 
 
@@ -90,49 +99,57 @@ export default class ProfileScreen extends Component {
           <Animatable.View
             animation='zoomIn'
             duration={600}
+            useNativeDriver={true}
             style={styles.container}
-          >            
+          >
             <ImageBackground
-              source={require('../assets/ProfileBackground.png')}
+              source={require('../assets/HomeBKND.png')}
               resizeMode='stretch'
               style={styles.image2}
               imageStyle={styles.image2_imageStyle}
             >
               <Animatable.View
-              animation='flipInX'
+                animation='flipInX'
                 duration={1000}
+                useNativeDriver={true}
                 style={styles.linearGradient}
               >
-                  <FontAwesome
-                    name="user-circle-o"
-                    color='#FF3E89'
-                    size={100}
+                <FontAwesome
+                  name="user-circle-o"
+                  color='#15223D'
+                  size={75}
+                />
+                <View style={styles.profiledetails}>
+                  <Text style={{
+                    fontWeight: 'bold',
+                    color: '#15223D'
+                  }}>{user.email}</Text>
+                  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                  <AirbnbRating
+                    count={5}
+                    reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
+                    defaultRating={this.state.rating}
+                    size={20}
+                    isDisabled={true}
+                    reviewSize={0}
                   />
-                  <View style={styles.profiledetails}>
-                    <Text style={{
-                      fontWeight: 'bold',
-                      color: '#15223D'
-                    }}>{user.email}</Text>
-                    <AirbnbRating
-                      count={5}
-                      reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
-                      defaultRating={this.state.rating}
-                      size={20}
-                      isDisabled={true}
-                      reviewSize={0}
-                    />
+                  <Text style={{color:'#F4B400'}}>{this.state.rating}/5</Text>
                   </View>
+                 {this.state.ratingcount == 0? <Text style={{marginTop:10,color:'#CCC'}}>No reviews</Text>:
+                 <Text style={{marginTop:10,color:'#0F9D58'}}>({this.state.ratingcount}) reviews</Text>}
+                </View>
               </Animatable.View>
             </ImageBackground>
             <Modal
               isVisible={this.state.isModalVisibleskill}
               animationIn={"zoomIn"}
               animationOut={"zoomOut"}
+              useNativeDriver={true}
               style={{ alignItems: 'center' }}
             >
               <View style={styles.modal}>
                 <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.toggleModalskill}>
-                  <Icon
+                  <Entypo
                     name='circle-with-cross'
                     size={20}
                   />
@@ -146,24 +163,33 @@ export default class ProfileScreen extends Component {
               isVisible={this.state.isModalVisiblereview}
               animationIn={"zoomIn"}
               animationOut={"zoomOut"}
+              useNativeDriver={true}
               style={{ alignItems: 'center' }}
             >
               <View style={styles.modal}>
                 <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.toggleModalreview}>
-                  <Icon
+                  <Entypo
                     name='circle-with-cross'
                     size={20}
                   />
                 </TouchableOpacity>
                 <View style={{ alignItems: 'center' }}><Text style={{ fontWeight: 'bold' }}>Review</Text></View>
-                <FlatList 
+                <FlatList
                   data={this.state.reviews}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item }) => (
-                      <View style={styles.container}>
-                        <Text style={styles.title}>{item.title}</Text>
-                      </View>
+                    <View style={{
+                      borderColor:'#ff7aa2',
+                      borderBottomWidth:0.5,
+                      padding:15,
+                      borderRadius:20
+
+                    }}>
+                      <Text style={{fontWeight:'bold',color:'#15223D'}}>@{item.Uname}</Text>
+                      <Text style={{marginTop:5}}>{item.review}</Text>
+                    </View>
                   )}
-                
+
                 />
 
               </View>
@@ -172,11 +198,17 @@ export default class ProfileScreen extends Component {
               <Animatable.View
                 animation='fadeInRight'
                 duration={1000}
+                useNativeDriver={true}
               >
                 <TouchableOpacity
                   onPress={this.toggleModalskill}
                   style={styles.about}
                 >
+                 <FontAwesome5
+                  name="users-cog"
+                  color='#5a94fc'
+                  size={25}
+                />
                   <Text style={styles.abouttxt}>
                     Skills
                   </Text>
@@ -185,11 +217,17 @@ export default class ProfileScreen extends Component {
               <Animatable.View
                 animation='fadeInRight'
                 duration={1100}
+                useNativeDriver={true}
               >
                 <TouchableOpacity
                   onPress={this.toggleModalreview}
                   style={styles.about}
                 >
+                 <MaterialIcons
+                  name="rate-review"
+                  color='#FF6666'
+                  size={25}
+                />
                   <Text style={styles.abouttxt}>
                     Reviews
                   </Text>
@@ -198,11 +236,17 @@ export default class ProfileScreen extends Component {
               <Animatable.View
                 animation='fadeInRight'
                 duration={1200}
+                useNativeDriver={true}
               >
                 <TouchableOpacity
                   onPress={this.signout}
                   style={styles.about}
                 >
+                <AntDesign
+                  name="logout"
+                  color='#DB4437'
+                  size={25}
+                />
                   <Text style={styles.abouttxt}>
                     LogOut
                   </Text>
@@ -230,26 +274,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF'
   },
   image2: {
-    flex: 1,
-    alignItems: 'center',
+    height:'40%',
+    alignItems: 'center'
   },
   image2_imageStyle: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height * 0.5,
+    height: '30%',
     resizeMode: 'stretch',
   },
   profiledetails: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: '#152238',
   },
   linearGradient: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    width: '90%',
+    width: '95%',
     height: '50%',
-    marginTop: '40%',
+    marginTop: '25%',
     borderRadius: 20,
     shadowColor: "rgba(0,0,0,1)",
     shadowOffset: {
@@ -259,7 +301,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     shadowOpacity: 0.5,
     shadowRadius: 0,
-    padding: 10
+    padding: 10,
   },
   bottom: {
     flex: 1,
@@ -267,15 +309,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   about: {
+    flexDirection:'row',
     alignItems: 'center',
     marginTop: 10,
-    padding: 15,
+    paddingVertical:15,
+    paddingHorizontal:25,
     borderRadius: 20,
     borderBottomWidth: 0.5,
-    borderColor: '#e0e7e9'
+    borderColor: '#ccc',
 
   },
   abouttxt: {
+    marginLeft:15,
     color: '#15223D',
     fontSize: 15,
     fontWeight: 'bold'

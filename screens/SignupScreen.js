@@ -13,8 +13,41 @@ import {
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
+import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import { CirclesLoader } from 'react-native-indicator';
+import MultiSelect from 'react-native-multiple-select';
+
+
+const items = [{
+    id: '92iijs7yta',
+    name: 'Select this if you are going to post the work.'
+  }, {
+    id: 'a0s0a8ssbsd',
+    name: 'Ogun'
+  }, {
+    id: '16hbajsabsd',
+    name: 'Calabar'
+  }, {
+    id: 'nahs75a5sg',
+    name: 'Lagos'
+  }, {
+    id: '667atsas',
+    name: 'Maiduguri'
+  }, {
+    id: 'hsyasajs',
+    name: 'Anambra'
+  }, {
+    id: 'djsjudksjd',
+    name: 'Benue'
+  }, {
+    id: 'sdhyaysdj',
+    name: 'Kaduna'
+  }, {
+    id: 'suudydjsjd',
+    name: 'Abuja'
+    }
+];
 
 class SignupScreen extends Component {
 
@@ -26,10 +59,14 @@ class SignupScreen extends Component {
         check_textInputChange: false,
         secureTextEntry: true,
         confirm_secureTextEntry: false,
-        isValidUser: true,
+        isValidemail: null,
         isValidPassword: true,
         pswd_check: true,
-        loading: false
+        loading: false,
+
+        selectedItems:[],
+        contactno:'',
+        isValidno:null
     }
 
     textInputChange = (val) => {
@@ -37,25 +74,46 @@ class SignupScreen extends Component {
             this.setState({
                 email: val,
                 check_textInputChange: true,
-                isValidUser: true
+                isValidemail: true
             });
         } else {
             this.setState({
                 email: val,
                 check_textInputChange: false,
-                isValidUser: false
+                isValidemail: false
             });
         }
     }
-
     checkEmail = () => {
         if (!this.state.email.endsWith('@gmail.com')) {
             Alert.alert('Wrong Input!', 'Enter valid email address', [
-                { text: 'Okay' }
+                { text: 'Edit' }
             ]);
             return;
         }
     }
+    contactInputChange = (val) => {
+        if(val.length == 10){
+            this.setState({
+                contactno:val,
+                isValidno:true
+            })
+        }else{
+            this.setState({
+                contactno:'',
+                isValidno:false
+            })
+        }
+    }
+    checkContactno = () => {
+        if (this.state.contactno.length != 10) {
+            Alert.alert('Wrong Input!', 'Enter valid phone no', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
+    }
+
     handlePasswordChange = (val) => {
         if (val.length >= 6) {
             this.setState({
@@ -114,6 +172,24 @@ class SignupScreen extends Component {
             ]);
             return;
         }
+        if (!this.state.email.endsWith('@gmail.com')) {
+            Alert.alert('Wrong Input!', 'Enter valid email id', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
+        if (this.state.selectedItems.length == 0) {
+            Alert.alert('Wrong Input!', 'Select atleast one skill.', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
+        if (this.state.contactno.length != 10) {
+            Alert.alert('Wrong Input!', 'Enter 10 digit phone no..!', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
         if (!this.state.pswd_check) {
             Alert.alert('Wrong Input!', 'Password is not Matching..!', [
                 { text: 'Okay' }
@@ -123,7 +199,7 @@ class SignupScreen extends Component {
 
         Alert.alert(
             "Confirmation.!",
-            "If our team find anything wrong your account can be blocked.",
+            "Press confirm is all above information is correcct.",
             [
                 {
                     text: "Edit",
@@ -150,16 +226,30 @@ class SignupScreen extends Component {
     }
 
     onLoginSuccess = () => {
+
+
+        database().ref('users/' + this.state.email.slice(0, -4)+ '').set({
+            phoneno:this.state.contactno,
+            skills:this.state.selectedItems,
+            review:[],
+            rating:0,
+            ratingcount:0,
+          });
+          console.log('skills',data)
         this.setState({
             error: '',
             loading: false
         })
+        console.log(this.state.selectedItems)
     }
 
-
+    onSelectedItemsChange = selectedItems => {
+        console.log(selectedItems)
+        this.setState({ selectedItems });
+      };
 
     render() {
-
+        const { selectedItems } = this.state;
         const colors = { text: '#05375a' }
 
         return (
@@ -174,6 +264,7 @@ class SignupScreen extends Component {
                     <View style={styles.view1}>
                         <Animatable.View
                             animation='fadeInLeft'
+                            useNativeDriver={true}
                             duration={1000}
                         >
                             <TouchableOpacity
@@ -188,6 +279,7 @@ class SignupScreen extends Component {
                         </Animatable.View>
                         <Animatable.View
                             animation='fadeInRight'
+                            useNativeDriver={true}
                             duration={1000}
                         >
                             <Text style={styles.login}>Create Account</Text>
@@ -197,227 +289,244 @@ class SignupScreen extends Component {
 
                     {/*SignUp Form */}
 
-                    
-                        <Animatable.View
-                            animation='zoomIn'
-                            duration={1000}
-                            style={styles.logview}
-                        >{this.state.loading ? <View style={{
-                            flex: 1,
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }} >
-                            <CirclesLoader color='#7133D1' />
-                        </View> :
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                <Text style={styles.text_footer}>Email or Phone</Text>
-                                <View style={styles.action}>
-                                    <FontAwesome
-                                        name="user-o"
-                                        color="#05375a"
-                                        size={20}
-                                    />
-                                    <TextInput
-                                        placeholder="Your Email"
-                                        style={styles.textInput}
-                                        autoCapitalize="none"
-                                        onChangeText={this.textInputChange}
-                                        onEndEditing={this.checkEmail}
-                                    />
-                                    {this.state.check_textInputChange ?
-                                        <Animatable.View
-                                            animation="bounceIn"
-                                        >
-                                            <Feather
-                                                name="check-circle"
-                                                color="green"
-                                                size={20}
-                                            />
-                                        </Animatable.View>
-                                        : null}
-                                </View>
 
-                                <Text style={[styles.text_footer, {
-                                    marginTop: 10
-                                }]}>Password</Text>
-                                <View style={styles.action}>
-                                    <Feather
-                                        name="lock"
-                                        color="#05375a"
-                                        size={20}
-                                    />
-                                    <TextInput
-                                        placeholder="Your Password"
-                                        secureTextEntry={this.state.secureTextEntry ? true : false}
-                                        style={styles.textInput}
-                                        autoCapitalize="none"
-                                        onChangeText={this.handlePasswordChange}
-                                        onEndEditing={this.handleValidUser}
-                                    />
-                                    <TouchableOpacity
-                                        onPress={this.updateSecureTextEntry}
+                    <Animatable.View
+                        animation='zoomIn'
+                        useNativeDriver={true}
+                        duration={1000}
+                        style={styles.logview}
+                    >{this.state.loading ? <View style={{
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }} >
+                        <CirclesLoader color='#7133D1' />
+                    </View> :
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={styles.text_footer}>Email</Text>
+                            <View style={[styles.action,{borderBottomColor:'#f2f2f2',borderBottomWidth:1}]}>
+                                <FontAwesome
+                                    name="user-o"
+                                    color="#4285F4"
+                                    size={20}
+                                />
+                                <TextInput
+                                    placeholder="Enter your email"
+                                    style={styles.textInput}
+                                    autoCapitalize="none"
+                                    onChangeText={this.textInputChange}
+                                    onEndEditing={this.checkEmail}
+                                />
+                                {this.state.isValidemail ?
+                                    <Animatable.View
+                                        animation="bounceIn"
                                     >
-                                        {this.state.secureTextEntry ?
-                                            <Feather
-                                                name="eye-off"
-                                                color="grey"
-                                                size={20}
-                                            />
-                                            :
-                                            <Feather
-                                                name="eye"
-                                                color="grey"
-                                                size={20}
-                                            />
-                                        }
-                                    </TouchableOpacity>
-                                </View>
-                                {this.state.isValidPassword ? null :
-                                    <Animatable.View animation="fadeInLeft" duration={500}>
-                                        <Text style={styles.errorMsg}>Password must be 6 characters long.</Text>
+                                        <Feather
+                                            name="check-circle"
+                                            color="green"
+                                            size={20}
+                                        />
                                     </Animatable.View>
-                                }
-
-                                <Text style={[styles.text_footer, {
-                                    marginTop: 10
-                                }]}>Confirm Password</Text>
-                                <View style={styles.action}>
-                                    <Feather
-                                        name="lock"
-                                        color="#05375a"
-                                        size={20}
-                                    />
-                                    <TextInput
-                                        placeholder="Confirm Your Password"
-                                        secureTextEntry={this.state.confirm_secureTextEntry ? true : false}
-                                        style={styles.textInput}
-                                        autoCapitalize="none"
-                                        onChangeText={this.handleConfirmPasswordChange}
-                                    //   onEndEditing={this.checkpswd}
-                                    />
-                                    <TouchableOpacity
-                                        onPress={this.updateConfirmSecureTextEntry}
+                                    : null}
+                            </View>
+                            <Text style={styles.text_footer}>Phone no.</Text>
+                            <View style={[styles.action,{borderBottomColor:'#f2f2f2',borderBottomWidth:1}]}>
+                                <FontAwesome
+                                    name="phone"
+                                    color="#0F9D58"
+                                    size={20}
+                                />
+                                <TextInput
+                                    placeholder="Enter 10 digti no."
+                                    style={styles.textInput}
+                                    autoCapitalize="none"
+                                    onChangeText={this.contactInputChange}
+                                    onEndEditing={this.checkContactno}
+                                />
+                                {this.state.isValidno ?
+                                    <Animatable.View
+                                        animation="bounceIn"
                                     >
-                                        {this.state.secureTextEntry ?
-                                            <Feather
-                                                name="eye-off"
-                                                color="grey"
-                                                size={20}
-                                            />
-                                            :
-                                            <Feather
-                                                name="eye"
-                                                color="grey"
-                                                size={20}
-                                            />
-                                        }
-                                    </TouchableOpacity>
-                                </View>
-                                {this.state.pswd_check ? null :
-                                    <Animatable.View animation="fadeInLeft" duration={500}>
-                                        <Text style={styles.errorMsg}>Password is not matching...!</Text>
+                                        <Feather
+                                            name="check-circle"
+                                            color="green"
+                                            size={20}
+                                        />
                                     </Animatable.View>
-                                }
+                                    : null}
+                            </View>
+                            <Text style={[styles.text_footer, {
+                                marginTop: 10,
+                                marginBottom:10
+                            }]}>Skills</Text>
+                            <MultiSelect
+                                hideTags
+                                items={items}
+                                uniqueKey="name"
+                                ref={(component) => { this.multiSelect = component }}
+                                onSelectedItemsChange={this.onSelectedItemsChange}
+                                selectedItems={selectedItems}
+                                selectText="Select skills"
+                                searchInputPlaceholderText="Search skills..."
+                                onChangeInput={(text) => console.log(text)}
+                                altFontFamily="ProximaNova-Light"
+                                tagRemoveIconColor="#CCC"
+                                tagBorderColor="#CCC"
+                                tagTextColor="#CCC"
+                                selectedItemTextColor="#0F9D58"
+                                selectedItemIconColor="#0F9D58"
+                                itemTextColor="#CCC"
+                                displayKey="name"
+                                searchInputStyle={{ color: '#CCC' }}
+                                submitButtonColor="#0F9D58"
+                                submitButtonText="Submit"
+                            />
+                            <Text style={[styles.text_footer, {
+                                marginTop: 10
+                            }]}>Password</Text>
+                            <View style={styles.action}>
+                                <Feather
+                                    name="lock"
+                                    color="#DB4437"
+                                    size={20}
+                                />
+                                <TextInput
+                                    placeholder="Your Password"
+                                    secureTextEntry={this.state.secureTextEntry ? true : false}
+                                    style={styles.textInput}
+                                    autoCapitalize="none"
+                                    onChangeText={this.handlePasswordChange}
+                                    onEndEditing={this.handleValidUser}
+                                />
+                                <TouchableOpacity
+                                    onPress={this.updateSecureTextEntry}
+                                >
+                                    {this.state.secureTextEntry ?
+                                        <Feather
+                                            name="eye-off"
+                                            color="grey"
+                                            size={20}
+                                        />
+                                        :
+                                        <Feather
+                                            name="eye"
+                                            color="grey"
+                                            size={20}
+                                        />
+                                    }
+                                </TouchableOpacity>
+                            </View>
+                            {this.state.isValidPassword ? null :
+                                <Animatable.View animation="fadeInLeft" duration={500}>
+                                    <Text style={styles.errorMsg}>Password must be 6 characters long.</Text>
+                                </Animatable.View>
+                            }
 
-                                {this.state.error === '' ? null :
-                                    <Animatable.View animation="fadeInLeft" duration={500}>
-                                        <Text style={styles.userErr}>{this.state.error}</Text>
-                                    </Animatable.View>
-                                }
-                                <View style={{
-                                    alignItems: 'flex-end',
+                            <Text style={[styles.text_footer, {
+                                marginTop: 10
+                            }]}>Confirm Password</Text>
+                            <View style={styles.action}>
+                                <Feather
+                                    name="lock"
+                                    color="#DB4437"
+                                    size={20}
+                                />
+                                <TextInput
+                                    placeholder="Confirm Your Password"
+                                    secureTextEntry={this.state.confirm_secureTextEntry ? true : false}
+                                    style={styles.textInput}
+                                    autoCapitalize="none"
+                                    onChangeText={this.handleConfirmPasswordChange}
+                                //   onEndEditing={this.checkpswd}
+                                />
+                                <TouchableOpacity
+                                    onPress={this.updateConfirmSecureTextEntry}
+                                >
+                                    {this.state.secureTextEntry ?
+                                        <Feather
+                                            name="eye-off"
+                                            color="grey"
+                                            size={20}
+                                        />
+                                        :
+                                        <Feather
+                                            name="eye"
+                                            color="grey"
+                                            size={20}
+                                        />
+                                    }
+                                </TouchableOpacity>
+                            </View>
+                            {this.state.pswd_check ? null :
+                                <Animatable.View animation="fadeInLeft" duration={500}>
+                                    <Text style={styles.errorMsg}>Password is not matching...!</Text>
+                                </Animatable.View>
+                            }
 
-                                    padding: 4
-                                }}>
-                                    <View style={styles.textPrivate}>
-                                        <Text style={styles.color_textPrivate}>
-                                            By signing up you agree to our
+                            {this.state.error === '' ? null :
+                                <Animatable.View animation="fadeInLeft" duration={500}>
+                                    <Text style={styles.userErr}>{this.state.error}</Text>
+                                </Animatable.View>
+                            }
+                            <View style={{
+                                alignItems: 'flex-end',
+
+                                padding: 4
+                            }}>
+                                <View style={styles.textPrivate}>
+                                    <Text style={styles.color_textPrivate}>
+                                        By signing up you agree to our
                   </Text>
-                                        <Text style={[styles.color_textPrivate, { fontWeight: 'bold' }]}>{" "}Terms of service</Text>
-                                        <Text style={styles.color_textPrivate}>{" "}and</Text>
-                                        <Text style={[styles.color_textPrivate, { fontWeight: 'bold' }]}>{" "}Privacy policy</Text>
-                                    </View>
-                                    <TouchableOpacity
-                                        style={{
-
-                                            width: 100,
-                                            padding: 10,
-                                            paddingHorizontal: 20,
-                                            backgroundColor: '#7133D1',
-                                            borderRadius: 20,
-                                            shadowColor: "rgba(0,0,0,1)",
-                                            shadowOffset: {
-                                                height: 5,
-                                                width: 5
-                                            },
-                                            elevation: 5,
-                                            shadowOpacity: 0.15,
-                                            shadowRadius: 0,
-                                        }}
-                                        onPress={this.signUpHandle}
-                                    >
-                                        {this.state.loading ? <ActivityIndicator
-                                            size='small'
-                                            color='#F1FAEE'
-                                        /> :
-                                            <View style={{
-
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                            }}>
-                                                <Text style={styles.textSign}>Sign UP</Text>
-                                                <FontAwesome
-                                                    name="arrow-circle-right"
-                                                    color='#FFF'
-                                                    size={20}
-                                                    style={{ marginLeft: 5 }}
-                                                />
-                                            </View>
-                                        }
-
-                                    </TouchableOpacity>
+                                    <Text style={[styles.color_textPrivate, { fontWeight: 'bold' }]}>{" "}Terms of service</Text>
+                                    <Text style={styles.color_textPrivate}>{" "}and</Text>
+                                    <Text style={[styles.color_textPrivate, { fontWeight: 'bold' }]}>{" "}Privacy policy</Text>
                                 </View>
-                                <View style={{
-                                    alignItems: 'center',
-                                    marginTop: 5,
+                                <TouchableOpacity
+                                    style={{
 
-                                }}>
-                                    <Text style={{
-                                        fontFamily: "roboto-regular",
-                                        color: "rgba(29,53,87,1)",
-                                        fontSize: 15
-                                    }}> Or create account with </Text>
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
+                                        width: 100,
                                         padding: 10,
-                                        width: '100%',
-                                        borderTopWidth: 0.5,
+                                        paddingHorizontal: 20,
+                                        backgroundColor: '#7133D1',
                                         borderRadius: 20,
-                                        marginTop: 5
-                                    }}>
-                                        <TouchableOpacity style={styles.otherbutton}>
+                                        shadowColor: "rgba(0,0,0,1)",
+                                        shadowOffset: {
+                                            height: 5,
+                                            width: 5
+                                        },
+                                        elevation: 5,
+                                        shadowOpacity: 0.15,
+                                        shadowRadius: 0,
+                                    }}
+                                    onPress={this.signUpHandle}
+                                >
+                                    {this.state.loading ? <ActivityIndicator
+                                        size='small'
+                                        color='#F1FAEE'
+                                    /> :
+                                        <View style={{
+
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                        }}>
+                                            <Text style={styles.textSign}>Sign UP</Text>
                                             <FontAwesome
-                                                name="google"
+                                                name="arrow-circle-right"
                                                 color='#FFF'
                                                 size={20}
                                                 style={{ marginLeft: 5 }}
                                             />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={[styles.otherbutton, { backgroundColor: '#3cba54' }]}>
-                                            <FontAwesome
-                                                name="phone"
-                                                color='#FFF'
-                                                size={20}
-                                                style={{ marginLeft: 5 }}
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </ScrollView>}
-                        </Animatable.View>
+                                        </View>
+                                    }
+
+                                </TouchableOpacity>
+                            </View>
+
+                        </ScrollView>}
+                    </Animatable.View>
                     <Animatable.View
                         animation='bounceInUp'
+                        useNativeDriver={true}
                         duration={1000}
                     >
                         <TouchableOpacity
@@ -470,7 +579,7 @@ const styles = StyleSheet.create({
     },
     view1: {
         width: '100%',
-        marginTop: '10%',
+        marginTop: '5%',
         marginLeft: 20,
         flexDirection: 'row',
         justifyContent: 'flex-start',
@@ -488,10 +597,10 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     logview: {
-        height: '72%',
+        height: '80%',
         width: '80%',
         marginLeft: '10%',
-        marginTop: 20,
+        marginTop: 10,
         backgroundColor: "#FFF",
         // opacity: 0.3,
         borderRadius: 20,

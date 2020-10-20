@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, Alert, ImageBackground } from "react-native";
 import * as Animatable from 'react-native-animatable';
-
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -21,6 +21,7 @@ const SplashScreen = ({ navigation }) => {
       >
         <Animatable.View
           animation='bounce'
+          useNativeDriver={true}
           duration={900}
           style={{
             height: 200,
@@ -56,6 +57,7 @@ const SplashScreen = ({ navigation }) => {
 
           <Animatable.View
             animation='fadeInRight'
+            useNativeDriver={true}
             duration={1000}
           >
             <Text style={styles.txtbelow}>
@@ -66,23 +68,13 @@ const SplashScreen = ({ navigation }) => {
         </View>
         <View style={{
           marginTop: 25,
-          flexDirection: 'row',
-          justifyContent: 'space-evenly'
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'flex-end'
         }}>
           <Animatable.View
-            animation='fadeInUp'
-            duration={1000}
-          >
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => Alert.alert('alert pressed')}>
-              <Text style={styles.btext}>
-                Want to Work
-              </Text>
-            </TouchableOpacity>
-          </Animatable.View>
-          <Animatable.View
-            animation='fadeInUp'
+            animation='zoomIn'
+            useNativeDriver={true}
             duration={1000}
           >
             <TouchableOpacity
@@ -90,8 +82,13 @@ const SplashScreen = ({ navigation }) => {
               onPress={() => navigation.navigate('LoginScreen')}
             >
               <Text style={styles.btext}>
-                Want to Hire
+                Go
               </Text>
+              <FontAwesome
+                name="arrow-circle-right"
+                color='#FFF'
+                size={20}
+              />
             </TouchableOpacity>
           </Animatable.View>
         </View>
@@ -122,7 +119,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    borderRadius: 15,
+    height: 75,
+    width: 75,
+    borderRadius: 50,
     shadowColor: "rgba(0,0,0,1)",
     shadowOffset: {
       width: 10,
@@ -133,7 +132,10 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     backgroundColor: "rgba(125,134,248,1)",
     padding: 10,
-    paddingHorizontal: 15
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    flexDirection:'row'
   },
   btext: {
     color: '#fff',

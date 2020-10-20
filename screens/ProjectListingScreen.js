@@ -42,7 +42,9 @@ export default class ProjectListingScreen extends Component {
       title: '',
       budget: '',
       description: '',
-
+      location:'',
+      prefrences:'',
+      uid:'',
       //State variables for Bidding modal
       deadline: '',
       biddescription: '',
@@ -119,7 +121,7 @@ export default class ProjectListingScreen extends Component {
 
   onRefresh = () => {
     setTimeout(() => {
-      getProjects();
+      this.getProjects();
     }, 1000);
   }
 
@@ -151,7 +153,7 @@ export default class ProjectListingScreen extends Component {
       bidmodalVisible: true
     });
   }
-  setProjectDetailModal = (Url, title, budget, description,buid,bcategory,pid) =>{
+  setProjectDetailModal = (Url, title, budget, description,buid,bcategory,pid,location,prefrences,uid) =>{
     this.setState({
       iconUrl: Url,
       title: title,
@@ -160,6 +162,9 @@ export default class ProjectListingScreen extends Component {
       BUid:buid,
       Bcategory:bcategory,
       Ownerid:pid,
+      location:location,
+      prefrences:prefrences,
+      uid:uid,
       modalVisible: true
     });
   }
@@ -199,6 +204,19 @@ export default class ProjectListingScreen extends Component {
 
   submitbiddetail = () => {
 
+    if(this.state.bidbudget.length == 0|| this.state.deadline.length == 0 ){
+      Alert.alert('Wrong Input!', 'Any of the field cannot be empty ', [
+        { text: 'Edit' }
+    ]);
+    return;
+    }
+    if(this.state.biddescription.length < 10){
+      Alert.alert('Wrong Input!', 'Description atlest be of 10 words', [
+        { text: 'Edit' }
+    ]);
+    return;
+    }
+
     this.setState({placebidloading:true})
     let user = auth().currentUser
 
@@ -208,7 +226,8 @@ export default class ProjectListingScreen extends Component {
       Description:this.state.biddescription,
       Category:this.state.Bcategory,
       Uid:this.state.BUid,
-      Selected:false
+      Selected:false,
+      BidId:user.email
     }).then(()=>firestore().collection('UserData').doc(user.email+'').collection('Biddings').doc(this.state.BUid+'').set({
       Rate:this.state.bidbudget,
       TimeLimit:this.state.deadline,
@@ -241,7 +260,7 @@ export default class ProjectListingScreen extends Component {
 }
   render() {
     return (
-      <View>
+      <View style={{height:'90%'}}>
 
 
         {/*******************************************Header*******************************************************/}
@@ -261,7 +280,7 @@ export default class ProjectListingScreen extends Component {
         >
           <View style={styles.modal}>
             <ImageBackground
-              source={require('../assets/Details.png')}
+              source={require('../assets/WorkDetails.png')}
               resizeMode='stretch'
               style={styles.image2}
               imageStyle={styles.image2_imageStyle}
@@ -284,13 +303,25 @@ export default class ProjectListingScreen extends Component {
                 <Text style={styles.title}>Title  :   </Text>
                 <Text style={{ width: '60%', color: '#15223D' }}>{this.state.title}</Text>
               </View>
+              <View style={[styles.section, { flexDirection: 'row' }]} >
+                <Text style={styles.title}>Budget  :  </Text>
+                <Text style={{ color: '#3cba54' }}>{this.state.budget}</Text>
+              </View>
+              <View style={[styles.section, { flexDirection: 'row' }]} >
+                <Text style={styles.title}>Location  :  </Text>
+                <Text style={{ color: '#3cba54' }}>{this.state.location}</Text>
+              </View>
+              <View style={[styles.section, { flexDirection: 'row' }]} >
+                <Text style={styles.title}>Prefrences  :  </Text>
+                <Text style={{ color: '#3cba54' }}>{this.state.prefrences}</Text>
+              </View>
               <View style={[styles.section]}>
                 <Text style={styles.title}>Description  :</Text>
                 <Text style={{ marginTop: 5, color: '#15223D' }}>{this.state.description}</Text>
               </View>
-              <View style={[styles.section, { flexDirection: 'row' }]} >
-                <Text style={styles.title}>Budget  :  </Text>
-                <Text style={{ color: '#3cba54' }}>{this.state.budget}</Text>
+              <View style={[styles.section,{flexDirection:'row'}]}>
+                <Text style={styles.title}>Uid  :</Text>
+                <Text style={{ marginTop: 5, color: '#CCC' }}>{this.state.uid}</Text>
               </View>
 
             </ScrollView>
@@ -425,7 +456,7 @@ export default class ProjectListingScreen extends Component {
                 source={require('../assets/prbkcg.png')}
                 resizeMode='stretch'
                 style={{ flex: 1, padding: 10 }}
-                imageStyle={{ borderRadius: 20 }}
+                imageStyle={{ borderRadius: 20,height:'80%' }}
               >
                 <View style={{
                   flexDirection: 'row',
@@ -447,7 +478,7 @@ export default class ProjectListingScreen extends Component {
                 }}>
                   <TouchableOpacity
                     style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                    onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description,item.Uid,this.props.route.params.CategoryName,item.Pid)}
+                    onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description,item.Uid,this.props.route.params.CategoryName,item.Pid,item.Location,item.Prefrences,item.Uid)}
                   >
                     <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
                   </TouchableOpacity>
@@ -518,7 +549,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: '5%',
     width: '90%',
-    borderRadius: 20,
     shadowColor: "rgb(125, 134, 248)",
     shadowOffset: {
       height: 20,
@@ -529,6 +559,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 0,
     backgroundColor: '#fFf',
+    borderBottomLeftRadius:35,
+    borderBottomRightRadius:35
   },
   button: {
     width: '40%',

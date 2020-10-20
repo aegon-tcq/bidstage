@@ -1,7 +1,8 @@
 
 import React, { Component } from 'react';
 import {
-    View
+    View,
+    StyleSheet
 } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -14,6 +15,8 @@ import ProjectDetailNavigator from './ProjectDetailNavigator';
 import PrposalsScreen from '../screens/PrposalsScreen.js';
 import Myprojects from '../screens/Myprojects.js';
 import ProfileScreen from '../screens/ProfileScreen.js';
+
+
 
 export default class BottomNavigator extends Component {
     render() {
@@ -36,7 +39,7 @@ export default class BottomNavigator extends Component {
                             marginLeft: '2.5%',
                             width: '95%',
                         },
-                        backgroundColor:'#FFF'
+                        backgroundColor: '#FFF'
                     }}
 
                     appearence={{
@@ -60,7 +63,7 @@ export default class BottomNavigator extends Component {
                         }}
 
                     />
-                    <Tabs.Screen
+                     <Tabs.Screen
                         name="Proposals"
                         component={PrposalsScreen}
                         options={{
@@ -75,8 +78,8 @@ export default class BottomNavigator extends Component {
                             )
                         }}
                     />
-                    <Tabs.Screen
-                        name="My Projects"
+                   <Tabs.Screen
+                        name="Accepted Bids"
                         component={Myprojects}
                         options={{
                             tabBarIcon: ({ focused, color, size }) => (
@@ -107,6 +110,15 @@ export default class BottomNavigator extends Component {
                     />
                 </Tabs.Navigator>
             </NavigationContainer>
+
         )
     }
 }
+
+const styles = StyleSheet.create({
+    actionButtonIcon: {
+        fontSize: 20,
+        height: 22,
+        color: 'white',
+    },
+});
