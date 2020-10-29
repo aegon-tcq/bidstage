@@ -6,10 +6,14 @@ import {
   StyleSheet,
   ImageBackground,
   TouchableOpacity,
-  FlatList
+  FlatList,
+  Image,
+  ScrollView,
+  TextInput
 } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import firestore from "@react-native-firebase/firestore";
 import auth from '@react-native-firebase/auth';
 import Modal from 'react-native-modal';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -17,51 +21,73 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import database from '@react-native-firebase/database';
-import { BubblesLoader } from 'react-native-indicator';
 import * as Animatable from 'react-native-animatable';
+import LottieView from 'lottie-react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Feather from 'react-native-vector-icons/Feather';
+
+import Icon from 'react-native-vector-icons/Entypo';
+
+const { width, height } = Dimensions.get('window');
 
 export default class ProfileScreen extends Component {
 
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       loading: null,
       isModalVisibleskill: false,
       isModalVisiblereview: false,
+      ismyprojectmodalvisible: false,
+      projectdetailmodal: false,
       rating: 0.0,
-      ratingcount:0.0,
+      ratingcount: 0.0,
       skills: [],
-      reviews: []
+      reviews: [],
+      cnameuid: [],
+      myprojects: [],
+      projectdetail: {},
+
+      //state variable for update project
+      updateprojectmodal: false,
+      useremail: '',
+      title: '',
+      description: '',
+      budget: '',
+      location: '',
+      prefrences: '',
+      catname: '',
+      uid: '',
+      updatingprojectloading: false,
+      postingtick: false
+
+
+
     }
   }
 
   componentDidMount() {
-
     database()
       .ref('/users/' + auth().currentUser.email.slice(0, -4))
       .on('value', snapshot => {
-        
+
         this.setState({
           skills: snapshot.val()['skills'],
           rating: snapshot.val()['rating'],
-          ratingcount:snapshot.val()['ratingcount']
+          cnameuid: snapshot.val()['myprojects'],
+          ratingcount: snapshot.val()['ratingcount']
         })
         let newreviews = []
-        for(let key in snapshot.val()['review']){
-          newreviews.push(snapshot.val()['review'][key]); 
+        for (let key in snapshot.val()['review']) {
+          newreviews.push(snapshot.val()['review'][key]);
         }
-        this.setState({reviews:newreviews});
-        console.log('rating  ',this.state.rating)
-        console.log('rating count ',this.state.ratingcount)
+        console.log(this.state.cnameuid)
+        this.setState({ reviews: newreviews });
+        this.getmyprojects()
       });
 
-    this.setloading()
   }
 
-
-  setloading = () => {
-    setTimeout(() => { this.setState({ loading: false }) }, 1000);
-  }
   toggleModalskill = () => {
     this.setState({ isModalVisibleskill: !this.state.isModalVisibleskill });
   };
@@ -70,15 +96,39 @@ export default class ProfileScreen extends Component {
     this.setState({ isModalVisiblereview: !this.state.isModalVisiblereview });
   };
 
+  togglemodalmyproject = () => {
+    this.setState({ ismyprojectmodalvisible: !this.state.ismyprojectmodalvisible });
+  };
 
+  togglemodalmyprojectdetailmodal = () => {
+    this.setState({ projectdetailmodal: !this.state.projectdetailmodal });
+  };
+
+  toggleupdateprojectmodal = () => {
+    this.setState({ updateprojectmodal: !this.state.updateprojectmodal })
+  }
   showskills = () => {
     return this.state.skills.join(', ')
   }
 
-  showreview = () => {
-    for (let key in this.state.reviews) {
+  getmyprojects = () => {
+    this.setState({ loadingmyprojects: true })
+    let projects = []
+    for (let key in this.state.cnameuid) {
+      firestore().collection('ProjectDetails').doc('Categories').collection(this.state.cnameuid[key]['CategoryName'] + '').where("Uid", "==", this.state.cnameuid[key]['Uid']).get()
+        .then(function (querySnapshot) {
+          querySnapshot.forEach(function (doc) {
+            projects.push(doc.data())
+          });
+        }).then(() => this.setState({ myprojects: projects, loading: false }))
+        .catch(()=>console.log('error'))
 
     }
+
+  }
+
+  getmyprojectsdetail = (item) => {
+    this.setState({ projectdetail: item, projectdetailmodal: true })
   }
 
   signout = () => {
@@ -89,9 +139,105 @@ export default class ProfileScreen extends Component {
     setTimeout(() => { this.setState({ loading: false }) }, 1500);
   }
 
+  inputtitle = (val) => {
+    if (val.length >= 5 && val.length <= 30) {
+      this.setState({ title: val })
+    } else {
+      this.setState({ title: '' })
+    }
+  }
+  inputdescription = (val) => {
+    if (val.length >= 50) {
+      this.setState({ description: val })
+    } else {
+      this.setState({ description: '' })
+    }
+  }
+  inputbudget = (val) => {
+    if (val.length > 2) {
+      this.setState({ budget: val })
+    } else {
+      this.setState({ budget: '' })
+    }
+  }
+  inputlocation = (val) => {
+    if (val.length >= 5) {
+      this.setState({ location: val })
+    } else {
+      this.setState({ location: '' })
+    }
+  }
+  inputprefrences = (val) => {
+    this.setState({ prefrences: val })
+  }
+  onselectedcategory = selectedcategory => {
+    console.log(selectedcategory)
+    this.setState({ selectedcategory });
+  };
 
+  editmyproject = (item) => {
+    this.setState({
+      title: item.Title,
+      budget: item.Budget,
+      prefrences: item.Prefrences,
+      description: item.Description,
+      location: item.Location,
+      uid: item.Uid,
+      updateprojectmodal: true
+    })
+
+
+  }
+
+  postupdateprojectdetail = () => {
+    this.setState({ updatingprojectloading: true })
+    let cname = ''
+    let docid = ''
+    for (let key in this.state.cnameuid) {
+      if (this.state.cnameuid[key]['Uid'] === this.state.uid) {
+        cname = this.state.cnameuid[key]['CategoryName']
+        console.log(cname)
+      }
+    }
+
+
+
+    firestore().collection('ProjectDetails').doc('Categories').collection(cname + '').where("Uid", "==", this.state.uid).get()
+      .then(function (querySnapshot) {
+        querySnapshot.forEach(function (doc) {
+          docid = doc.id
+          console.log(docid)
+        })
+      })
+      .then(() => {
+        console.log(docid, 'updating')
+        firestore().collection('ProjectDetails').doc('Categories').collection(cname + '').doc(docid + '').update({
+          Title: this.state.title,
+          Budget: this.state.budget,
+          Location: this.state.location,
+          Prefrences: this.state.prefrences,
+          Description: this.state.description
+        })
+      }
+      )
+      .then(() => {
+
+        this.setState({
+          updatingprojectloading: false,
+          updateprojectmodal: false,
+          projectdetailmodal: false,
+          ismyprojectmodalvisible: false,
+          postingtick: true
+        })
+        this.getmyprojects()
+      })
+      .then(() => this.tick())
+  }
+
+  tick = () => {
+    setTimeout(() => this.setState({ postingtick: false }), 400)
+  }
   render() {
-    // this.readdata()
     const user = auth().currentUser
     switch (this.state.loading) {
       case false:
@@ -124,28 +270,32 @@ export default class ProfileScreen extends Component {
                     fontWeight: 'bold',
                     color: '#15223D'
                   }}>{user.email}</Text>
-                  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                  <AirbnbRating
-                    count={5}
-                    reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
-                    defaultRating={this.state.rating}
-                    size={20}
-                    isDisabled={true}
-                    reviewSize={0}
-                  />
-                  <Text style={{color:'#F4B400'}}>{this.state.rating}/5</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <AirbnbRating
+                      count={5}
+                      reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
+                      defaultRating={this.state.rating}
+                      size={20}
+                      isDisabled={true}
+                      reviewSize={0}
+                    />
+                    <Text style={{ color: '#F4B400' }}>{this.state.rating}/5</Text>
                   </View>
-                 {this.state.ratingcount == 0? <Text style={{marginTop:10,color:'#CCC'}}>No reviews</Text>:
-                 <Text style={{marginTop:10,color:'#0F9D58'}}>({this.state.ratingcount}) reviews</Text>}
+                  {this.state.ratingcount == 0 ? <Text style={{ marginTop: 10, color: '#CCC' }}>No reviews</Text> :
+                    <Text style={{ marginTop: 10, color: '#0F9D58' }}>({this.state.ratingcount}) reviews</Text>}
                 </View>
               </Animatable.View>
             </ImageBackground>
+
+            {/***************************************Skill Modal***********************************************/}
+
+
             <Modal
               isVisible={this.state.isModalVisibleskill}
               animationIn={"zoomIn"}
               animationOut={"zoomOut"}
               useNativeDriver={true}
-              style={{ alignItems: 'center' }}
+              style={{ margin: 0 }}
             >
               <View style={styles.modal}>
                 <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.toggleModalskill}>
@@ -159,14 +309,17 @@ export default class ProfileScreen extends Component {
 
               </View>
             </Modal>
+
+            {/***************************************Review Modal***********************************************/}
+
             <Modal
               isVisible={this.state.isModalVisiblereview}
               animationIn={"zoomIn"}
               animationOut={"zoomOut"}
               useNativeDriver={true}
-              style={{ alignItems: 'center' }}
+              style={{ margin: 0 }}
             >
-              <View style={styles.modal}>
+              <View style={[styles.modal, { flex: 1 }]}>
                 <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.toggleModalreview}>
                   <Entypo
                     name='circle-with-cross'
@@ -179,14 +332,14 @@ export default class ProfileScreen extends Component {
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item }) => (
                     <View style={{
-                      borderColor:'#ff7aa2',
-                      borderBottomWidth:0.5,
-                      padding:15,
-                      borderRadius:20
+                      borderColor: '#ff7aa2',
+                      borderBottomWidth: 0.5,
+                      padding: 15,
+                      borderRadius: 20
 
                     }}>
-                      <Text style={{fontWeight:'bold',color:'#15223D'}}>@{item.Uname}</Text>
-                      <Text style={{marginTop:5}}>{item.review}</Text>
+                      <Text style={{ fontWeight: 'bold', color: '#15223D' }}>@{item.Uname}</Text>
+                      <Text style={{ marginTop: 5 }}>{item.review}</Text>
                     </View>
                   )}
 
@@ -194,6 +347,345 @@ export default class ProfileScreen extends Component {
 
               </View>
             </Modal>
+
+            {/***************************************Myproject Modal***********************************************/}
+
+
+            <Modal
+              isVisible={this.state.ismyprojectmodalvisible}
+              animationIn={"fadeInUpBig"}
+              animationOut={"fadeOutRightBig"}
+              useNativeDriver={true}
+              style={{ margin: 0 }}
+            >
+              <View style={{
+                flex: 1, backgroundColor: '#FFF'
+              }}>
+                <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }} onPress={this.togglemodalmyproject}>
+                  <FontAwesome
+                    name='arrow-circle-right'
+                    size={30}
+                  />
+                </TouchableOpacity>
+
+                <FlatList
+                  vertical
+                  showsVerticalScrollIndicator={false}
+                  data={this.state.myprojects}
+                  keyExtractor={item => item.Uid.toString()}
+                  renderItem={({ item }) => (
+                    <Animatable.View
+                      animation='bounceInUp'
+                      duration={600}
+                      style={styles.projectView}
+                    >
+                      <ImageBackground
+                        source={require('../assets/prbkcg.png')}
+                        resizeMode='stretch'
+                        style={{ flex: 1, padding: 10 }}
+                        imageStyle={{ borderRadius: 20, height: '80%' }}
+                      >
+                        <View style={{
+                          flexDirection: 'row',
+                          padding: 5,
+                          alignItems: 'center',
+                        }} >
+                          <Image style={styles.icon} source={{ uri: item.IconUrl }} />
+                          <View style={{ marginLeft: 10, width: '65%' }}>
+                            <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
+                            <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                          </View>
+                        </View>
+                        <View style={{
+                          flexDirection: 'row',
+                          padding: 5,
+                          alignItems: 'center',
+                          justifyContent: 'space-evenly',
+                          marginTop: 10
+                        }}>
+                          <TouchableOpacity
+                            style={[styles.button, { backgroundColor: '#ff7aa2' }]}
+                            onPress={() => this.getmyprojectsdetail(item)}
+                          >
+                            <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
+                          </TouchableOpacity>
+
+
+
+                          <TouchableOpacity
+                            style={[styles.button, { backgroundColor: '#74c69d' }]}
+                            onPress={() => this.editmyproject(item)}
+                          >
+                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
+                          </TouchableOpacity>
+                        </View>
+
+                      </ImageBackground>
+                    </Animatable.View>
+                  )}
+                />
+              </View>
+            </Modal>
+
+            {/***************************************Myprojectdetail Modal***********************************************/}
+
+
+            <Modal
+              isVisible={this.state.projectdetailmodal}
+              animationIn={"fadeInRightBig"}
+              animationOut={"fadeOutRightBig"}
+              useNativeDriver={true}
+              style={{ margin: 0 }}
+            >
+              <View style={styles.modal}>
+                <ImageBackground
+                  source={require('../assets/WorkDetails.png')}
+                  resizeMode='stretch'
+                  style={{}}
+                  imageStyle={{
+                    width: '95%',
+                    height: 35,
+                  }}
+                >
+
+                  <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.togglemodalmyprojectdetailmodal}>
+                    <FontAwesome
+                      name='arrow-circle-right'
+                      size={30}
+                    />
+                  </TouchableOpacity>
+                </ImageBackground>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                >
+                  <View style={{ alignItems: 'center', padding: 10, borderColor: '#ff7aa2', borderBottomWidth: 0.5, borderRadius: 30, marginTop: 20 }}>
+                    <Image source={{ uri: this.state.projectdetail['IconUrl'] }} style={styles.icon} />
+                  </View>
+                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
+                    <Text style={styles.title}>Title  :   </Text>
+                    <Text style={{ width: '60%', color: '#15223D' }}>{this.state.projectdetail['Title']}</Text>
+                  </View>
+                  <View style={[styles.section, { flexDirection: 'row' }]} >
+                    <Text style={styles.title}>Budget  :  </Text>
+                    <Text style={{ color: '#3cba54' }}>{this.state.projectdetail['Budget']}</Text>
+                  </View>
+                  <View style={[styles.section, { flexDirection: 'row' }]} >
+                    <Text style={styles.title}>Location  :  </Text>
+                    <Text style={{ color: '#15223D' }}>{this.state.projectdetail['Location']}</Text>
+                  </View>
+                  <View style={[styles.section, { flexDirection: 'row' }]} >
+                    <Text style={styles.title}>Prefrences  :  </Text>
+                    <Text style={{ color: '#15223D' }}>{this.state.projectdetail['Prefrences']}</Text>
+                  </View>
+                  <View style={[styles.section]}>
+                    <Text style={styles.title}>Description  :</Text>
+                    <Text style={{ marginTop: 5, color: '#15223D' }}>{this.state.projectdetail['Description']}</Text>
+                  </View>
+                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
+                    <Text style={styles.title}>Uid  :</Text>
+                    <Text style={{ marginTop: 5, marginLeft: 10, color: '#CCC' }}>{this.state.projectdetail['Uid']}</Text>
+                  </View>
+
+                </ScrollView>
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15 }]}
+                  onPress={() => this.editmyproject(this.state.projectdetail)}
+                >
+                  <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
+
+            {/*******************************************************************************************/}
+
+
+            <Modal
+              isVisible={this.state.postingtick}
+              animationIn={"zoomInDown"}
+              animationOut={"zoomOutUp"}
+              useNativeDriver={true}
+              style={{ alignItems: 'center' }}
+            >
+
+              <LottieView source={require('../assets/tick-green.json')} autoPlay />
+              <Text style={{ fontWeight: 'bold', color: '#FFF', marginTop: 150 }}>Sucessfully Updated</Text>
+            </Modal>
+
+            <Modal
+              isVisible={this.state.updateprojectmodal}
+              animationIn={"fadeInUpBig"}
+              animationOut={"fadeOutRightBig"}
+              useNativeDriver={true}
+              style={{ margin: 0 }}
+            >
+              {this.state.updatingprojectloading ?
+                <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+                  <LottieView source={require('../assets/writing.json')} autoPlay />
+                </View> :
+                <View style={styles.modal}>
+                  <ImageBackground
+                    source={require('../assets/PostNewWork.png')}
+                    resizeMode='stretch'
+                    style={{}}
+                    imageStyle={{ width: '95%', height: '100%' }}
+                  >
+
+                    <TouchableOpacity
+                      style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 10 }}
+                      onPress={this.toggleupdateprojectmodal}
+                    >
+                      <FontAwesome
+                        name='arrow-circle-right'
+                        size={30}
+                        color='#15223D'
+                      />
+                    </TouchableOpacity>
+                  </ImageBackground>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    <Text style={styles.text_footer}>Title</Text>
+                    <View style={styles.action}>
+                      <MaterialCommunityIcons
+                        name="subtitles-outline"
+                        color="#4285F4"
+                        size={20}
+                      />
+                      <TextInput
+                        placeholder="Enter the title"
+                        style={styles.textInput}
+                        autoCapitalize="none"
+                        onChangeText={this.inputtitle}
+                        value={this.state.title}
+                      />
+                      {this.state.title.length >= 5 && this.state.title.length <= 30 ?
+                        <Animatable.View
+                          animation="bounceIn"
+                        >
+                          <Feather
+                            name="check-circle"
+                            color="green"
+                            size={20}
+                          />
+                        </Animatable.View>
+                        : null}
+                    </View>
+                    <Text style={styles.text_footer}>Budget</Text>
+                    <View style={styles.action}>
+                      <FontAwesome
+                        name="rupee"
+                        color="#0F9D58"
+                        size={20}
+                      />
+                      <TextInput
+                        placeholder="Enter the price in (RS)"
+                        style={styles.textInput}
+                        autoCapitalize="none"
+                        onChangeText={this.inputbudget}
+                        value={this.state.budget}
+                      />
+                      {this.state.budget.length > 2 ?
+                        <Animatable.View
+                          animation="bounceIn"
+                        >
+                          <Feather
+                            name="check-circle"
+                            color="green"
+                            size={20}
+                          />
+                        </Animatable.View>
+                        : null}
+                    </View>
+                    <Text style={styles.text_footer}>Location</Text>
+                    <View style={styles.action}>
+                      <Icon
+                        name="location"
+                        color="#C71610"
+                        size={20}
+                      />
+                      <TextInput
+                        placeholder="Enter the Work location"
+                        style={styles.textInput}
+                        autoCapitalize="none"
+                        onChangeText={this.inputlocation}
+                        value={this.state.location}
+                      />
+                      {this.state.location.length >= 10 ?
+                        <Animatable.View
+                          animation="bounceIn"
+                        >
+                          <Feather
+                            name="check-circle"
+                            color="green"
+                            size={20}
+                          />
+                        </Animatable.View>
+                        : null}
+                    </View>
+                    <Text style={styles.text_footer}>Prefrence</Text>
+                    <View style={styles.action}>
+                      <Icon
+                        name="pin"
+                        color="#4285F4"
+                        size={20}
+                      />
+                      <TextInput
+                        placeholder="Enter the skill/knowledge worker should have(Optional)"
+                        style={styles.textInput}
+                        multiline={true}
+                        numberOfLines={2}
+                        autoCapitalize="none"
+                        onChangeText={this.inputprefrences}
+                        value={this.state.prefrences}
+                      />
+
+                    </View>
+                    <Text style={styles.text_footer}>Description</Text>
+                    <View style={styles.action}>
+                      <Icon
+                        name="text-document"
+                        color="#15223D"
+                        size={20}
+                      />
+                      <TextInput
+                        placeholder="Describe your work.."
+                        multiline={true}
+                        numberOfLines={2}
+                        style={styles.textInput}
+                        autoCapitalize="none"
+                        onChangeText={this.inputdescription}
+                        value={this.state.description}
+                      />
+                      {this.state.description.length >= 50 ?
+                        <Animatable.View
+                          animation="bounceIn"
+                        >
+                          <Feather
+                            name="check-circle"
+                            color="green"
+                            size={20}
+                          />
+                        </Animatable.View>
+                        : null}
+                    </View>
+                    <TouchableOpacity
+                      style={{
+                        padding: 10,
+                        borderRadius: 20,
+                        backgroundColor: '#f84382',
+                        width: '40%',
+                        alignItems: 'center',
+                        marginLeft: '30%',
+                        marginTop: 10
+                      }}
+                      onPress={this.postupdateprojectdetail}
+                    >
+                      <Text style={{ color: "#FFF", fontWeight: "bold" }}>Update</Text>
+                    </TouchableOpacity>
+                  </ScrollView>
+
+                </View>}
+            </Modal>
+
+
             <View style={styles.bottom}>
               <Animatable.View
                 animation='fadeInRight'
@@ -204,11 +696,11 @@ export default class ProfileScreen extends Component {
                   onPress={this.toggleModalskill}
                   style={styles.about}
                 >
-                 <FontAwesome5
-                  name="users-cog"
-                  color='#5a94fc'
-                  size={25}
-                />
+                  <FontAwesome5
+                    name="users-cog"
+                    color='#5a94fc'
+                    size={25}
+                  />
                   <Text style={styles.abouttxt}>
                     Skills
                   </Text>
@@ -223,13 +715,32 @@ export default class ProfileScreen extends Component {
                   onPress={this.toggleModalreview}
                   style={styles.about}
                 >
-                 <MaterialIcons
-                  name="rate-review"
-                  color='#FF6666'
-                  size={25}
-                />
+                  <MaterialIcons
+                    name="rate-review"
+                    color='#FF6666'
+                    size={25}
+                  />
                   <Text style={styles.abouttxt}>
                     Reviews
+                  </Text>
+                </TouchableOpacity>
+              </Animatable.View>
+              <Animatable.View
+                animation='fadeInRight'
+                duration={1100}
+                useNativeDriver={true}
+              >
+                <TouchableOpacity
+                  onPress={this.togglemodalmyproject}
+                  style={styles.about}
+                >
+                  <MaterialIcons
+                    name="collections"
+                    color='#7133D1'
+                    size={25}
+                  />
+                  <Text style={styles.abouttxt}>
+                    MyProjects
                   </Text>
                 </TouchableOpacity>
               </Animatable.View>
@@ -242,11 +753,11 @@ export default class ProfileScreen extends Component {
                   onPress={this.signout}
                   style={styles.about}
                 >
-                <AntDesign
-                  name="logout"
-                  color='#DB4437'
-                  size={25}
-                />
+                  <AntDesign
+                    name="logout"
+                    color='#DB4437'
+                    size={25}
+                  />
                   <Text style={styles.abouttxt}>
                     LogOut
                   </Text>
@@ -256,13 +767,7 @@ export default class ProfileScreen extends Component {
           </Animatable.View>
         )
       default:
-        return <View style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center'
-        }} >
-          <BubblesLoader color='#7d86f8' />
-        </View>
+        return <LottieView source={require('../assets/Profile.json')} autoPlay loop />
     }
 
   }
@@ -274,7 +779,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF'
   },
   image2: {
-    height:'40%',
+    height: '40%',
     alignItems: 'center'
   },
   image2_imageStyle: {
@@ -309,27 +814,71 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   about: {
-    flexDirection:'row',
+    flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
-    paddingVertical:15,
-    paddingHorizontal:25,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
     borderRadius: 20,
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
 
   },
   abouttxt: {
-    marginLeft:15,
+    marginLeft: 15,
     color: '#15223D',
     fontSize: 15,
     fontWeight: 'bold'
   },
   modal: {
-    width: '95%',
-    borderRadius: 20,
+    flex: 1,
     backgroundColor: '#FFF',
     padding: 15,
-  }
+  },
+  projectView: {
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: '5%',
+    width: '90%',
+    shadowColor: "rgb(125, 134, 248)",
+    shadowOffset: {
+      height: 20,
+      width: 20,
 
+    },
+    elevation: 5,
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    backgroundColor: '#fFf',
+    borderBottomLeftRadius: 35,
+    borderBottomRightRadius: 35
+  },
+  button: {
+    width: '40%',
+    padding: 10,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  section: {
+    padding: 15,
+    borderBottomColor: '#ff7aa2',
+    borderBottomWidth: 0.5,
+  },
+  icon: {
+    height: 100,
+    width: 100,
+    borderRadius: 50,
+  },
+  action: {
+    flexDirection: 'row',
+    marginTop: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f2f2f2',
+    alignItems: 'center'
+  },
+  text_footer: {
+    marginTop: 5,
+    color: '#15223D'
+  }
 })

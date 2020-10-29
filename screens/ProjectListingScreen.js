@@ -42,20 +42,20 @@ export default class ProjectListingScreen extends Component {
       title: '',
       budget: '',
       description: '',
-      location:'',
-      prefrences:'',
-      uid:'',
+      location: '',
+      prefrences: '',
+      uid: '',
       //State variables for Bidding modal
       deadline: '',
       biddescription: '',
       bidbudget: '',
       validinfo: null,
-      placebidloading:false,
-      
+      placebidloading: false,
+
       // state variable for placing bid
-      BUid:'',
-      Bcategory:'',
-      Ownerid:''
+      BUid: '',
+      Bcategory: '',
+      Ownerid: ''
     }
   }
 
@@ -142,29 +142,29 @@ export default class ProjectListingScreen extends Component {
   };
 
   togglebidmodal = () => {
-    this.setState({bidmodalVisible:!this.state.bidmodalVisible});
+    this.setState({ bidmodalVisible: !this.state.bidmodalVisible });
   }
-  setBidDetailModal = (buid,bcategory,pid) => {
+  setBidDetailModal = (buid, bcategory, pid) => {
     this.setState({
       modalVisible: false,
-      BUid:buid,
-      Bcategory:bcategory,
-      Ownerid:pid,
+      BUid: buid,
+      Bcategory: bcategory,
+      Ownerid: pid,
       bidmodalVisible: true
     });
   }
-  setProjectDetailModal = (Url, title, budget, description,buid,bcategory,pid,location,prefrences,uid) =>{
+  setProjectDetailModal = (Url, title, budget, description, buid, bcategory, pid, location, prefrences, uid) => {
     this.setState({
       iconUrl: Url,
       title: title,
       budget: budget,
       description: description,
-      BUid:buid,
-      Bcategory:bcategory,
-      Ownerid:pid,
-      location:location,
-      prefrences:prefrences,
-      uid:uid,
+      BUid: buid,
+      Bcategory: bcategory,
+      Ownerid: pid,
+      location: location,
+      prefrences: prefrences,
+      uid: uid,
       modalVisible: true
     });
   }
@@ -204,63 +204,63 @@ export default class ProjectListingScreen extends Component {
 
   submitbiddetail = () => {
 
-    if(this.state.bidbudget.length == 0|| this.state.deadline.length == 0 ){
+    if (this.state.bidbudget.length == 0 || this.state.deadline.length == 0) {
       Alert.alert('Wrong Input!', 'Any of the field cannot be empty ', [
         { text: 'Edit' }
-    ]);
-    return;
+      ]);
+      return;
     }
-    if(this.state.biddescription.length < 10){
+    if (this.state.biddescription.length < 10) {
       Alert.alert('Wrong Input!', 'Description atlest be of 10 words', [
         { text: 'Edit' }
-    ]);
-    return;
+      ]);
+      return;
     }
 
-    this.setState({placebidloading:true})
+    this.setState({ placebidloading: true })
     let user = auth().currentUser
 
-    firestore().collection('UserData').doc(this.state.Ownerid+'').collection('Proposals').doc(this.state.BUid+'').set({
-      Rate:this.state.bidbudget,
-      TimeLimit:this.state.deadline,
-      Description:this.state.biddescription,
-      Category:this.state.Bcategory,
-      Uid:this.state.BUid,
-      Selected:false,
-      BidId:user.email
-    }).then(()=>firestore().collection('UserData').doc(user.email+'').collection('Biddings').doc(this.state.BUid+'').set({
-      Rate:this.state.bidbudget,
-      TimeLimit:this.state.deadline,
-      Description:this.state.biddescription,
-      Category:this.state.Bcategory,
-      Uid:this.state.BUid,
-      Selected:false
+    firestore().collection('UserData').doc(this.state.Ownerid + '').collection('Proposals').doc(this.state.BUid + '').set({
+      Rate: this.state.bidbudget,
+      TimeLimit: this.state.deadline,
+      Description: this.state.biddescription,
+      Category: this.state.Bcategory,
+      Uid: this.state.BUid,
+      Selected: false,
+      BidId: user.email
+    }).then(() => firestore().collection('UserData').doc(user.email + '').collection('Biddings').doc(this.state.BUid + '').set({
+      Rate: this.state.bidbudget,
+      TimeLimit: this.state.deadline,
+      Description: this.state.biddescription,
+      Category: this.state.Bcategory,
+      Uid: this.state.BUid,
+      Selected: false
     }).then(this.onWriteSuccess)
-    .catch(function (error) {
+      .catch(function (error) {
         Alert.alert('Error!', error, [
-            { text: 'Retry' }
+          { text: 'Retry' }
         ])
-    }))
+      }))
 
-    
+
   }
 
   onWriteSuccess = () => {
     this.setState({
       placebidloading: false,
-      bidmodalVisible:false
+      bidmodalVisible: false
     })
     if (this.state.placebidloading == false) {
-        Alert.alert('Bid Placed', 'You will get notified when your bid is selected..', [
-            { text: 'Okay' }
-        ]);
-        return;
+      Alert.alert('Bid Placed', 'You will get notified when your bid is selected..', [
+        { text: 'Okay' }
+      ]);
+      return;
     }
 
-}
+  }
   render() {
     return (
-      <View style={{height:'90%'}}>
+      <View style={{ height: '90%' }}>
 
 
         {/*******************************************Header*******************************************************/}
@@ -309,28 +309,38 @@ export default class ProjectListingScreen extends Component {
               </View>
               <View style={[styles.section, { flexDirection: 'row' }]} >
                 <Text style={styles.title}>Location  :  </Text>
-                <Text style={{ color: '#3cba54' }}>{this.state.location}</Text>
+                <Text style={{ color: '#15223D' }}>{this.state.location}</Text>
               </View>
               <View style={[styles.section, { flexDirection: 'row' }]} >
                 <Text style={styles.title}>Prefrences  :  </Text>
-                <Text style={{ color: '#3cba54' }}>{this.state.prefrences}</Text>
+                <Text style={{ color: '#15223D' }}>{this.state.prefrences}</Text>
               </View>
               <View style={[styles.section]}>
                 <Text style={styles.title}>Description  :</Text>
                 <Text style={{ marginTop: 5, color: '#15223D' }}>{this.state.description}</Text>
               </View>
-              <View style={[styles.section,{flexDirection:'row'}]}>
+              <View style={[styles.section, { flexDirection: 'row' }]}>
                 <Text style={styles.title}>Uid  :</Text>
                 <Text style={{ marginTop: 5, color: '#CCC' }}>{this.state.uid}</Text>
               </View>
 
             </ScrollView>
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15 }]}
-              onPress={() => this.setBidDetailModal(this.state.BUid,this.state.Bcategory,this.state.Ownerid)}
-            >
-              <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
-            </TouchableOpacity>
+            {auth().currentUser.email == this.state.Ownerid ?
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15, opacity: 0.4 }]}
+                onPress={() => Alert.alert("Can't Bid!", 'this work is posted by you..', [
+                  { text: 'Okay' }
+                ])}
+              >
+                <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+              </TouchableOpacity>
+              :
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15 }]}
+                onPress={() => this.setBidDetailModal(this.state.BUid, this.state.Bcategory, this.state.Ownerid)}
+              >
+                <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+              </TouchableOpacity>}
           </View>
         </Modal>
 
@@ -456,7 +466,7 @@ export default class ProjectListingScreen extends Component {
                 source={require('../assets/prbkcg.png')}
                 resizeMode='stretch'
                 style={{ flex: 1, padding: 10 }}
-                imageStyle={{ borderRadius: 20,height:'80%' }}
+                imageStyle={{ borderRadius: 20, height: '80%' }}
               >
                 <View style={{
                   flexDirection: 'row',
@@ -478,16 +488,28 @@ export default class ProjectListingScreen extends Component {
                 }}>
                   <TouchableOpacity
                     style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                    onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description,item.Uid,this.props.route.params.CategoryName,item.Pid,item.Location,item.Prefrences,item.Uid)}
+                    onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description, item.Uid, this.props.route.params.CategoryName, item.Pid, item.Location, item.Prefrences, item.Uid)}
                   >
                     <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.button, { backgroundColor: '#74c69d' }]}
-                    onPress={() => this.setBidDetailModal(item.Uid,this.props.route.params.CategoryName,item.Pid)}
-                  >
-                    <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
-                  </TouchableOpacity>
+
+
+                  {auth().currentUser.email == item.Pid ?
+                    <TouchableOpacity
+                      style={[styles.button, { backgroundColor: '#74c69d', opacity: 0.4 }]}
+                      onPress={() => Alert.alert("Can't Bid!", 'this work is posted by you..', [
+                        { text: 'Okay' }
+                      ])}
+                    >
+                      <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                    </TouchableOpacity>
+                    :
+                    <TouchableOpacity
+                      style={[styles.button, { backgroundColor: '#74c69d' }]}
+                      onPress={() => this.setBidDetailModal(item.Uid, this.props.route.params.CategoryName, item.Pid)}
+                    >
+                      <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                    </TouchableOpacity>}
                 </View>
 
               </ImageBackground>
@@ -559,8 +581,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 0,
     backgroundColor: '#fFf',
-    borderBottomLeftRadius:35,
-    borderBottomRightRadius:35
+    borderBottomLeftRadius: 35,
+    borderBottomRightRadius: 35
   },
   button: {
     width: '40%',

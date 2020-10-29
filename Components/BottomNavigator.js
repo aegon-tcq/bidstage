@@ -12,9 +12,10 @@ import Icon from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import ProjectDetailNavigator from './ProjectDetailNavigator';
+import ProfileScreen from '../screens/ProfileScreen.js';
 import PrposalsScreen from '../screens/PrposalsScreen.js';
 import Myprojects from '../screens/Myprojects.js';
-import ProfileScreen from '../screens/ProfileScreen.js';
+
 
 
 

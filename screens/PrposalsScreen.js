@@ -21,11 +21,15 @@ import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { AirbnbRating } from 'react-native-ratings';
-import { DotsLoader, BubblesLoader } from 'react-native-indicator';
-
+import LottieView from 'lottie-react-native';
 
 // const ProposalsRef = firestore().collection('UserData').doc(this.state.useremail+'').collection('Proposals')
 let onEndReachedCalledDuringMomentum = false;
+
+
+const hired = () => {
+  return <LottieView source={require('../assets/tick.json')} autoPlay loop />
+}
 
 export default class PrposalsScreen extends Component {
 
@@ -41,7 +45,7 @@ export default class PrposalsScreen extends Component {
 
       useremail: '',
       //state variable for bidder detail
-      loadingbidderinfo: null,
+      loadingbidderinfo: false,
       skills: '',
       rating: 0,
       uname: '',
@@ -49,7 +53,8 @@ export default class PrposalsScreen extends Component {
       timelimit: '',
       budget: '',
       projectid: '',
-      selected: false
+      selected: false,
+      hiring: false
     }
   }
 
@@ -64,8 +69,8 @@ export default class PrposalsScreen extends Component {
         this.getProposals();
       }
     });
-    
-    
+
+
   }
 
   getProposals = async () => {
@@ -84,7 +89,7 @@ export default class PrposalsScreen extends Component {
       }
 
       this.setState({ poroposals: newProposals })
-      console.log('Proposals',newProposals)
+      console.log('Proposals', newProposals)
     } else {
       this.setState({ lastDoc: null })
     }
@@ -159,12 +164,14 @@ export default class PrposalsScreen extends Component {
           budget: rate,
           timelimit: timelimit,
           bidderdetailmodal: true,
-          selected: Selected
+          selected: Selected,
+          loadingbidderinfo:false
         })
         console.log('skills', this.state.skills)
         console.log('review ', this.state.rating)
+        
       });
-    setTimeout(() => this.setState({ loadingbidderinfo: false }), 1500)
+   
   }
 
   checkhirebidder = (BidId, docid) => {
@@ -184,7 +191,7 @@ export default class PrposalsScreen extends Component {
 
   hirebidder = (BidId, docid) => {
 
-    this.setState({ loadingbidderinfo: true })
+    this.setState({ hiring: true })
 
     firestore().collection('UserData').doc(this.state.useremail + '').collection('Proposals').doc(docid + '').update({
       Selected: true,
@@ -200,17 +207,11 @@ export default class PrposalsScreen extends Component {
 
   onWriteSuccess = () => {
     this.setState({
-      loadingbidderinfo: false,
       bidmodalVisible: false,
       bidderdetailmodal: false
     })
-    if (this.state.loadingbidderinfo == false) {
-      Alert.alert('Sucessful', 'Bidder will contact you shortly..', [
-        { text: 'Okay' }
-      ]);
-      return;
-    }
-
+    setTimeout(() => this.setState({ hiring: false }),800)
+  
   }
 
   render() {
@@ -222,6 +223,32 @@ export default class PrposalsScreen extends Component {
               <Text style={styles.header}>Proposals</Text>
             </View>
 
+
+            <Modal
+              isVisible={this.state.hiring}
+              animationIn={"zoomInDown"}
+              animationOut={"zoomOutUp"}
+              useNativeDriver={true}
+              style={{ alignItems: 'center' }}
+            >
+            
+             <LottieView source={require('../assets/tick-green.json')} autoPlay  />
+             <Text style={{fontWeight:'bold',color:'#FFF',marginTop:150}}>Bidder Will contact you shortly</Text>
+            </Modal>
+            <Modal
+              isVisible={this.state.loadingbidderinfo}
+              animationIn={"zoomInDown"}
+              animationOut={"zoomOutUp"}
+              useNativeDriver={true}
+              style={{ alignItems: 'center' }}
+            >
+            
+            <View style={styles.modal}>
+            <LottieView source={require('../assets/formloading.json')} autoPlay  />
+            </View>
+            
+            </Modal>
+
             {/**********************************Bidder Detail Modal*************************************************/}
             <Modal
               isVisible={this.state.bidderdetailmodal}
@@ -230,13 +257,7 @@ export default class PrposalsScreen extends Component {
               useNativeDriver={true}
               style={{ alignItems: 'center' }}
             >
-              {this.state.loadingbidderinfo ? <View style={{
-                alignItems: 'center',
-                justifyContent: 'center'
-              }} >
-                <DotsLoader color='#7d86f8' />
-              </View>
-                : <View style={styles.modal}>
+              <View style={styles.modal}>
                   <ImageBackground
                     source={require('../assets/BidderDetails.png')}
                     resizeMode='stretch'
@@ -272,7 +293,7 @@ export default class PrposalsScreen extends Component {
                       <View style={{
                         alignItems: 'center',
                       }}>
-                        <Text style={styles.title}>@{this.state.uname.slice(0,-10)}</Text>
+                        <Text style={styles.title}>@{this.state.uname.slice(0, -10)}</Text>
                         <AirbnbRating
                           count={5}
                           reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
@@ -319,7 +340,7 @@ export default class PrposalsScreen extends Component {
                     >
                       <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>
                     </TouchableOpacity>}
-                </View>}
+                </View>
             </Modal>
 
             {/**********************************Lists of porposals*************************************************/}
@@ -384,19 +405,13 @@ export default class PrposalsScreen extends Component {
                           >
                             <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hired</Text>
                           </TouchableOpacity> :
-                          <TouchableOpacity
-                            style={[styles.button, { backgroundColor: '#74c69d' }]}
-                            onPress={() => this.checkhirebidder(item.BidId, item.Uid)}
-                          >
-                            {this.state.loadingbidderinfo ? <View style={{
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }} >
-                              <ActivityIndicator color='#081c15' size='small' />
-                            </View>
-                              :
-                              <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>}
-                          </TouchableOpacity>}
+                        <TouchableOpacity
+                          style={[styles.button, { backgroundColor: '#74c69d' }]}
+                          onPress={() => this.checkhirebidder(item.BidId, item.Uid)}
+                        >
+
+                          <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>
+                        </TouchableOpacity>}
                       </View>
 
                     </ImageBackground>
@@ -422,13 +437,7 @@ export default class PrposalsScreen extends Component {
           </View>
         )
       default:
-        return <View style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center'
-        }} >
-          <BubblesLoader color='#7d86f8' />
-        </View>
+        return <LottieView source={require('../assets/bidloading.json')} autoPlay loop />
     }
   }
 }

@@ -25,6 +25,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MultiSelect from 'react-native-multiple-select';
+import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
 // orientation must fixed
@@ -55,6 +56,7 @@ export default class HomeSreen extends Component {
       catname: [],
       selectedcategory: [],
       postingprojectloading: false,
+      postingtick:false
 
     }
   }
@@ -182,16 +184,17 @@ export default class HomeSreen extends Component {
         Location: this.state.location,
         Prefrences: this.state.prefrences,
         IconUrl: 'https://firebasestorage.googleapis.com/v0/b/bidstage-ade14.appspot.com/o/categoriesicon%2F001-electrician.png?alt=media&token=84e161a4-3e35-4150-8125-c7a4dbad4e59',
-        Uid: 111116
+        Uid: this.state.Uid
       })
+      .then(()=>database().ref('/users/'+this.state.useremail.slice(0,-4)+'/myprojects').push().set({
+        CategoryName:this.state.selectedcategory[0],
+        Uid:this.state.Uid
+      }))
       .then(()=>database().ref().update({
         Uid:parseInt(this.state.Uid)+1
       }) )
-      .then(() => this.setState({ postingprojectloading: false, postprojectmodal: false }))
-      .then(()=>{ Alert.alert('Sucessful!', 'Your work has been posted.', [
-        { text: 'Edit' }
-      ]);
-      return;})
+      .then(() => this.setState({ postingprojectloading: false, postprojectmodal: false,postingtick:true}))
+      .then(()=>setTimeout(()=>this.setState({postingtick:false}),1000))
       .catch(function (error) {
         console.error("Error adding document: ", error);
       });
@@ -201,7 +204,7 @@ export default class HomeSreen extends Component {
     switch (this.state.loading) {
       case false:
         return (
-          <View style={{ height: '91%', backgroundColor: '#FFF' }}>
+          <View style={{ height: '91%', backgroundColor: '#FFF'}}>
             <Animatable.View
               animation='fadeInDown'
               duration={1000}
@@ -214,10 +217,23 @@ export default class HomeSreen extends Component {
 
 
               <Modal
+              isVisible={this.state.postingtick}
+              animationIn={"zoomInDown"}
+              animationOut={"zoomOutUp"}
+              useNativeDriver={true}
+              style={{ alignItems: 'center' }}
+            >
+            
+             <LottieView source={require('../assets/tick-green.json')} autoPlay  />
+             <Text style={{fontWeight:'bold',color:'#FFF',marginTop:150}}>Sucessful</Text>
+            </Modal>
+
+              <Modal
                 isVisible={this.state.postprojectmodal}
-                animationIn={"zoomInDown"}
-                animationOut={"zoomOutUp"}
+                animationIn={"fadeInUpBig"}
+                animationOut={"fadeOutRightBig"}
                 useNativeDriver={true}
+                style={{margin:0}}
               >{this.state.postingprojectloading ? <View style={{
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -234,12 +250,13 @@ export default class HomeSreen extends Component {
                   >
 
                     <TouchableOpacity
-                      style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
+                      style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' ,padding:10}}
                       onPress={this.togglepostprojectdetailmodal}
                     >
-                      <Icon
-                        name='circle-with-cross'
-                        size={25}
+                      <FontAwesome
+                        name='arrow-circle-right'
+                        size={30}
+                        color='#15223D'
                       />
                     </TouchableOpacity>
                   </ImageBackground>
@@ -256,7 +273,6 @@ export default class HomeSreen extends Component {
                         style={styles.textInput}
                         autoCapitalize="none"
                         onChangeText={this.inputtitle}
-
                       />
                       {this.state.title.length >= 5 && this.state.title.length <= 30 ?
                         <Animatable.View
@@ -422,17 +438,18 @@ export default class HomeSreen extends Component {
 
 
             </Animatable.View>
-            <Animatable.View
-              animation='bounceInUp'
-              duration={1000}
-              style={{ height: '100%', backgroundColor: '#FFF', marginTop: 5 }}
-            >
+            
               <FlatList
                 showsVerticalScrollIndicator={false}
                 numColumns={2}
                 data={this.state.catgories}
                 keyExtractor={item => item.title}
                 renderItem={({ item }) => (
+                  <Animatable.View
+              animation='bounceInUp'
+              useNativeDriver={true}
+              // style={{ height: '100%', backgroundColor: '#FFF', marginTop: 5 }}
+            >
                   <TouchableOpacity
 
                     onPress={() => this.props.navigation.navigate('ProjectListingScreen', { CategoryName: String(item.title) })}
@@ -442,10 +459,11 @@ export default class HomeSreen extends Component {
                       <Text style={styles.title}>{item.title}</Text>
                     </View>
                   </TouchableOpacity>
+                  </Animatable.View>
                 )}
               />
-              <View style={{ height: '10%' }}></View>
-            </Animatable.View>
+              
+           
             <FAB
               style={styles.fab}
               icon="plus"
@@ -533,11 +551,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f84382'
   },
   postprojectmodal: {
-    width: '95%',
+    width: '100%',
     height: '100%',
     backgroundColor: '#FFF',
-    marginLeft: '2.5%',
-    borderRadius: 20,
     padding: 15
   },
   image2: {
@@ -545,7 +561,7 @@ const styles = StyleSheet.create({
   },
   image2_imageStyle: {
     width: '95%',
-    height: 35,
+    height: '100%',
   },
   action: {
     flexDirection: 'row',
