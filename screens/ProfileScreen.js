@@ -9,7 +9,8 @@ import {
   FlatList,
   Image,
   ScrollView,
-  TextInput
+  TextInput,
+  StatusBar
 } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -70,7 +71,6 @@ export default class ProfileScreen extends Component {
     database()
       .ref('/users/' + auth().currentUser.email.slice(0, -4))
       .on('value', snapshot => {
-
         this.setState({
           skills: snapshot.val()['skills'],
           rating: snapshot.val()['rating'],
@@ -83,7 +83,15 @@ export default class ProfileScreen extends Component {
         }
         console.log(this.state.cnameuid)
         this.setState({ reviews: newreviews });
-        this.getmyprojects()
+        console.log(this.state.reviews)
+        if (typeof snapshot.val()['myprojects'] === 'undefined') {
+          this.setState({ loading: false })
+        }
+        else {
+          this.getmyprojects()
+          
+        }
+
       });
 
   }
@@ -112,19 +120,19 @@ export default class ProfileScreen extends Component {
   }
 
   getmyprojects = () => {
-    this.setState({ loadingmyprojects: true })
-    let projects = []
+   
+    let pr = []
     for (let key in this.state.cnameuid) {
       firestore().collection('ProjectDetails').doc('Categories').collection(this.state.cnameuid[key]['CategoryName'] + '').where("Uid", "==", this.state.cnameuid[key]['Uid']).get()
         .then(function (querySnapshot) {
           querySnapshot.forEach(function (doc) {
-            projects.push(doc.data())
+            pr.push(doc.data())
           });
-        }).then(() => this.setState({ myprojects: projects, loading: false }))
-        .catch(()=>console.log('error'))
-
+        }).then(()=> this.setState({ myprojects: pr, loading: false }))
+        .catch((e) => console.log('error project',e))
     }
-
+    
+    
   }
 
   getmyprojectsdetail = (item) => {
@@ -318,12 +326,26 @@ export default class ProfileScreen extends Component {
               animationOut={"zoomOut"}
               useNativeDriver={true}
               style={{ margin: 0 }}
-            >
+            >{this.state.reviews.length === 0 ?
+              <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+                <LottieView source={require('../assets/no-review.json')} autoPlay />
+                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ fontWeight: 'bold', marginLeft: '35%', color: '#CCC' }}>No Reviews</Text>
+                  <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 5 }} onPress={this.toggleModalreview}>
+                    <FontAwesome
+                      name='arrow-circle-right'
+                      color='#ff6666'
+                      size={30}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View> :
               <View style={[styles.modal, { flex: 1 }]}>
                 <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.toggleModalreview}>
-                  <Entypo
-                    name='circle-with-cross'
-                    size={20}
+                  <FontAwesome
+                    name='arrow-circle-right'
+                    color='#ff6666'
+                    size={30}
                   />
                 </TouchableOpacity>
                 <View style={{ alignItems: 'center' }}><Text style={{ fontWeight: 'bold' }}>Review</Text></View>
@@ -345,7 +367,7 @@ export default class ProfileScreen extends Component {
 
                 />
 
-              </View>
+              </View>}
             </Modal>
 
             {/***************************************Myproject Modal***********************************************/}
@@ -358,73 +380,100 @@ export default class ProfileScreen extends Component {
               useNativeDriver={true}
               style={{ margin: 0 }}
             >
-              <View style={{
-                flex: 1, backgroundColor: '#FFF'
-              }}>
-                <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }} onPress={this.togglemodalmyproject}>
-                  <FontAwesome
-                    name='arrow-circle-right'
-                    size={30}
-                  />
-                </TouchableOpacity>
+              {this.state.myprojects.length === 0 ?
+                <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+                  <LottieView source={require('../assets/no-review.json')} autoPlay />
+                  <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={{ fontWeight: 'bold', marginLeft: '15%', color: '#CCC' }}>No Projects has been posted</Text>
+                    <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }} onPress={this.togglemodalmyproject}>
+                      <FontAwesome
+                        name='arrow-circle-right'
+                        color='#522e38'
+                        size={30}
+                      />
+                    </TouchableOpacity>
 
-                <FlatList
-                  vertical
-                  showsVerticalScrollIndicator={false}
-                  data={this.state.myprojects}
-                  keyExtractor={item => item.Uid.toString()}
-                  renderItem={({ item }) => (
-                    <Animatable.View
-                      animation='bounceInUp'
-                      duration={600}
-                      style={styles.projectView}
-                    >
-                      <ImageBackground
-                        source={require('../assets/prbkcg.png')}
-                        resizeMode='stretch'
-                        style={{ flex: 1, padding: 10 }}
-                        imageStyle={{ borderRadius: 20, height: '80%' }}
+                  </View>
+                </View>
+                :
+                <View style={{
+                  flex: 1, backgroundColor: '#FFF'
+                }}>
+                
+                  <ImageBackground
+                    source={require('../assets/MyProjects.png')}
+                    style={{alignItems:'center',flexDirection:'row',padding:5,marginTop:10}}
+                    imageStyle={{
+                      width: '95%',
+                      height: 35,
+                    }}
+                  >
+                    <TouchableOpacity style={{ marginLeft:'90%' }} onPress={this.togglemodalmyproject}>
+                      <FontAwesome
+                        name='arrow-circle-right'
+                        color='#522e38'
+                        size={30}
+                      />
+                    </TouchableOpacity>
+                  </ImageBackground>
+                  <FlatList
+                    vertical
+                    showsVerticalScrollIndicator={false}
+                    data={this.state.myprojects}
+                    keyExtractor={item => item.Uid.toString()}
+                    renderItem={({ item }) => (
+                      <Animatable.View
+                        animation='bounceInUp'
+                        duration={600}
+                        style={styles.projectView}
                       >
-                        <View style={{
-                          flexDirection: 'row',
-                          padding: 5,
-                          alignItems: 'center',
-                        }} >
-                          <Image style={styles.icon} source={{ uri: item.IconUrl }} />
-                          <View style={{ marginLeft: 10, width: '65%' }}>
-                            <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
-                            <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                        <ImageBackground
+                          source={require('../assets/prbkcg.png')}
+                          resizeMode='stretch'
+                          style={{ flex: 1, padding: 10 }}
+                          imageStyle={{ borderRadius: 20, height: '80%' }}
+                        >
+                          <View style={{
+                            flexDirection: 'row',
+                            padding: 5,
+                            alignItems: 'center',
+                          }} >
+                            <Image style={styles.icon} source={{ uri: item.IconUrl }} />
+                            <View style={{ marginLeft: 10, width: '65%' }}>
+                              <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
+                              <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                            </View>
                           </View>
-                        </View>
-                        <View style={{
-                          flexDirection: 'row',
-                          padding: 5,
-                          alignItems: 'center',
-                          justifyContent: 'space-evenly',
-                          marginTop: 10
-                        }}>
-                          <TouchableOpacity
-                            style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                            onPress={() => this.getmyprojectsdetail(item)}
-                          >
-                            <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
-                          </TouchableOpacity>
+                          <View style={{
+                            flexDirection: 'row',
+                            padding: 5,
+                            alignItems: 'center',
+                            justifyContent: 'space-evenly',
+                            marginTop: 10
+                          }}>
+                            <TouchableOpacity
+                              style={[styles.button, { backgroundColor: '#ff7aa2' }]}
+                              onPress={() => this.getmyprojectsdetail(item)}
+                            >
+                              <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
+                            </TouchableOpacity>
 
 
 
-                          <TouchableOpacity
-                            style={[styles.button, { backgroundColor: '#74c69d' }]}
-                            onPress={() => this.editmyproject(item)}
-                          >
-                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
-                          </TouchableOpacity>
-                        </View>
+                            <TouchableOpacity
+                              style={[styles.button, { backgroundColor: '#74c69d' }]}
+                              onPress={() => this.editmyproject(item)}
+                            >
+                              <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
+                            </TouchableOpacity>
+                          </View>
 
-                      </ImageBackground>
-                    </Animatable.View>
-                  )}
-                />
-              </View>
+                        </ImageBackground>
+                      </Animatable.View>
+                    )}
+                  />
+
+                </View>}
             </Modal>
 
             {/***************************************Myprojectdetail Modal***********************************************/}

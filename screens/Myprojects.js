@@ -10,7 +10,9 @@ import {
   Image,
   ImageBackground,
   ScrollView,
-  Linking
+  Linking,
+  TextInput,
+  Alert
 } from 'react-native';
 import database from '@react-native-firebase/database';
 import firestore from "@react-native-firebase/firestore";
@@ -19,9 +21,12 @@ import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { AirbnbRating } from 'react-native-ratings';
+import { AirbnbRating, Rating } from 'react-native-ratings';
 import { RippleLoader, BubblesLoader } from 'react-native-indicator';
 import Modal from 'react-native-modal';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import LottieView from 'lottie-react-native';
+
 
 // const Biddingref = firestore().collection('UserData').doc(this.state.useremail + '').collection('Biddings')
 let onEndReachedCalledDuringMomentum = false;
@@ -60,7 +65,19 @@ export default class Myprojects extends Component {
       ptitle: '',
       piconurl: '',
       plocation:'',
-      pprefrences:''
+      pprefrences:'',
+
+      //state variable for reviewing 
+      reviewmodalvisible: false,
+      updatingratereview:false,
+      postingtick: false,
+      rating: 1,
+      review: '',
+      date: '',
+      uid: '',
+      delid:'',
+      cname:''
+
     }
   }
 
@@ -72,7 +89,6 @@ export default class Myprojects extends Component {
           useremail: user.email
         })
         this.getBiddings();
-
       }
     });
 
@@ -154,7 +170,7 @@ export default class Myprojects extends Component {
   }
 
   getOwnerDetails = (uid, category) => {
-    this.setState({ loadingownerdetail: true, ownerdetailmodalvisible: true })
+    this.setState({ delid:uid,cname:category, loadingownerdetail: true, ownerdetailmodalvisible: true })
     let ownerId = ''
 
     firestore().collection('ProjectDetails').doc('Categories').collection(category + '').where("Uid", "==", uid).get()
@@ -174,6 +190,7 @@ export default class Myprojects extends Component {
         this.setState({
           Ophoneno: snapshot.val()['phoneno'],
           Oemailid: ownerid,
+          uid:ownerid,
           Orating: snapshot.val()['rating'],
           Oratingcount: snapshot.val()['ratingcount'],
           Oreviews: snapshot.val()['review']
@@ -189,7 +206,9 @@ export default class Myprojects extends Component {
   togggleownerdetailmodal = () => {
     this.setState({ ownerdetailmodalvisible: !this.state.ownerdetailmodalvisible })
   }
-
+  togglereviewmodal = () => {
+    this.setState({ reviewmodalvisible: !this.state.reviewmodalvisible })
+  }
   setBidderDetail = (description, rate, timelimit, uid, category) => {
     this.setState({
       loadingbidderinfo: true,
@@ -221,6 +240,88 @@ export default class Myprojects extends Component {
     this.setState({
       bidderdetailmodal: !this.state.bidderdetailmodal
     })
+  }
+
+  editreview = () => {
+   
+    Alert.alert(
+      "Confirmation.!",
+      "You should review only when the work has completed.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { text: "Rate", onPress: this.togglereviewmodal }
+      ],
+      { cancelable: false }
+    );
+    return
+  }
+
+  reviewcheck = (val) => {
+    this.setState({ review: val })
+  }
+
+  submitreview = () => {
+
+    this.setState({updatingratereview:true})
+
+    console.log('id',this.state.uid)
+
+    let ratingcount = 0
+    let rating = 0
+
+    database()
+      .ref('/users/' + this.state.uid.slice(0, -4))
+      .once('value')
+      .then(function (snapshot) {
+        rating = snapshot.val()['rating']
+        ratingcount = snapshot.val()['ratingcount']
+      })
+      .then(() => {
+        if (this.state.review.length > 0) {
+          database().ref('/users/' + this.state.uid.slice(0, -4) + '/review').push().set({
+            Uname: auth().currentUser.email.slice(0,-11),
+            review: this.state.review,
+            date: ''
+          })
+        }
+      })
+      .then(() => {
+       console.log('rating',((rating + this.state.rating) / (ratingcount + 1)).toFixed(1))
+        database().ref('/users/' + this.state.uid.slice(0, -4)).update({
+          rating: parseInt(((rating + this.state.rating) / (ratingcount + 1)).toFixed(1)),
+          ratingcount: ratingcount + 1
+        })
+        this.deletingremainig()
+      }).catch((e)=>console.log(e))
+
+  }
+
+  deletingremainig = () => {
+
+
+    let projectref = firestore().collection('ProjectDetails').doc('Categories').collection(this.state.cname + '').where("Uid", "==", this.state.delid)
+   projectref.get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+      doc.ref.delete();
+    });
+  }).then(()=>{
+    firestore().collection('UserData').doc(this.state.useremail + '').collection('Biddings').where("Uid", "==", this.state.delid)
+    .get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc) {
+        doc.ref.delete();
+      });
+    }).then(()=>{
+      setTimeout(()=>this.setState({updatingratereview:false}),1000)
+      this.setState({
+        reviewmodalvisible:false,
+        bidderdetailmodal:false,
+        postingtick:true
+      })
+    }).then(()=>setTimeout(()=>this.setState({postingtick:false}),700))
+  })
   }
   render() {
     switch (this.state.loading) {
@@ -328,6 +429,12 @@ export default class Myprojects extends Component {
                       </TouchableOpacity>
                     </View>
                     <Text style={{ paddingHorizontal: 20 }}>Now you can contact the owner..</Text>
+                    <TouchableOpacity
+                          style={[styles.button, { backgroundColor: '#7d86f8' }]}
+                          onPress={() =>  this.editreview()}
+                        >
+                          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 15 }}>Review</Text>
+                        </TouchableOpacity>
                   </ScrollView>
                 </View>}
             </Modal>
@@ -416,6 +523,122 @@ export default class Myprojects extends Component {
 
             </Modal>
 
+
+            <Modal
+              isVisible={this.state.reviewmodalvisible}
+              animationIn={"zoomInDown"}
+              animationOut={"zoomOutUp"}
+              useNativeDriver={true}
+              style={{ margin: 0 }}
+            >
+            {this.state.updatingratereview ?
+                <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+                  <LottieView source={require('../assets/writing.json')} autoPlay />
+                </View>:
+              <View style={{ flex: 1, backgroundColor: '#FFF', padding: 10 }} >
+
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
+                  onPress={this.togglereviewmodal}
+                >
+                  <Icon
+                    name='circle-with-cross'
+                    size={35}
+                  />
+                </TouchableOpacity>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                >
+                  <View style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 30
+                  }}>
+                    <AntDesign
+                      name='like2'
+                      size={35}
+                      color='#CCC'
+                    />
+                    <Text style={{
+                      color: "rgba(126,146,166,1)",
+                      textAlign: "center",
+                      fontSize: 18,
+                      opacity: 0.81,
+                      marginTop: 10
+                    }} >How likely you would recommend this worker to a friend or colleague?</Text>
+                  </View>
+                  <View style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 20,
+                  }} >
+                    <Rating
+                      type='custom'
+                      count={5}
+                      minValue={1}
+                      size={30}
+                      ratingTextColor='#7d86f8'
+                      showRating
+                      fractions={1}
+                      startingValue={1}
+                      onFinishRating={(val) => this.setState({ rating: val })}
+                    />
+                    <Text style={styles.text_footer}>Description</Text>
+                    <View style={styles.action}>
+                      <Icon
+                        name="text-document"
+                        color="#15223D"
+                        size={20}
+                      />
+                      <TextInput
+                        placeholder="Describe your experience.."
+                        multiline={true}
+                        numberOfLines={2}
+                        style={styles.textInput}
+                        autoCapitalize="none"
+                        onChangeText={this.reviewcheck}
+                        value={this.state.review}
+                      />
+
+                    </View>
+                  </View>
+
+                </ScrollView>
+                <Text style={{
+                  color: "#CCC",
+                  textAlign: "center",
+                  fontSize: 10,
+                  opacity: 0.81,
+                  marginBottom: 10
+                }} >Your feedback is very important to improve this profile.</Text>
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: '#7d86f8' }]}
+                  onPress={() => this.submitreview()}
+                >
+
+                  <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 15 }}>Submit Rview</Text>
+                </TouchableOpacity>
+
+              </View>}
+
+            </Modal>
+
+            <Modal
+              isVisible={this.state.postingtick}
+              animationIn={"zoomInDown"}
+              animationOut={"zoomOutUp"}
+              useNativeDriver={true}
+              style={{ alignItems: 'center' }}
+            >
+
+              <LottieView source={require('../assets/tick-green.json')} autoPlay />
+              <Text style={{ fontWeight: 'bold', color: '#FFF', marginTop: 150 }}>Thankyou for your feeback.</Text>
+            </Modal>
+
+
+
             {this.state.biddings.length == 0 ?
               <View style={{ flex: 1, alignItems: 'center', marginTop: '30%' }}>
                 <FontAwesome
@@ -465,6 +688,7 @@ export default class Myprojects extends Component {
                         >
                           <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Owners Details</Text>
                         </TouchableOpacity>
+                        
                         <TouchableOpacity
                           style={[styles.button, { backgroundColor: '#7d86f8' }]}
                           onPress={() => this.setBidderDetail(item.Description, item.Rate, item.TimeLimit, item.Uid, item.Category)}

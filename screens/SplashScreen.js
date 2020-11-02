@@ -1,10 +1,17 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Image, Text, TouchableOpacity, Dimensions, Alert, ImageBackground } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  StatusBar,
+  ImageBackground
+} from "react-native";
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import LottieView from 'lottie-react-native';
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+
 
 
 const SplashScreen = ({ navigation }) => {
@@ -14,6 +21,7 @@ const SplashScreen = ({ navigation }) => {
       duration={600}
       style={styles.container}
     >
+    <StatusBar barStyle="dark-content" hidden={false} backgroundColor="#FFF" translucent={true} />
       <ImageBackground
         source={require("../assets/MainPurple.png")}
         resizeMode='stretch'
@@ -136,7 +144,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     alignItems: 'center',
     justifyContent: 'space-evenly',
-    flexDirection:'row'
+    flexDirection: 'row'
   },
   btext: {
     color: '#fff',

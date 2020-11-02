@@ -10,7 +10,8 @@ import {
   ImageBackground,
   ScrollView,
   TextInput,
-  Alert
+  Alert,
+  StatusBar
 
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
@@ -26,6 +27,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MultiSelect from 'react-native-multiple-select';
 import LottieView from 'lottie-react-native';
+import storage from '@react-native-firebase/storage';
 
 const { width, height } = Dimensions.get('window');
 // orientation must fixed
@@ -56,7 +58,7 @@ export default class HomeSreen extends Component {
       catname: [],
       selectedcategory: [],
       postingprojectloading: false,
-      postingtick:false
+      postingtick: false
 
     }
   }
@@ -84,19 +86,25 @@ export default class HomeSreen extends Component {
         for (let i = 0; i < this.state.catgories.length; i++) {
           cname.push({ name: this.state.catgories[i].title })
         }
-        this.setState({ catname: cname,loading:false })
+        this.setState({ catname: cname, loading: false })
         console.log(this.state.catname)
       });
-      database()
-        .ref('/Uid')
-        .on('value', snapshot => {
-          this.setState({ Uid: snapshot.val(),loading:false })
-          console.log(snapshot.val())
-        });
-  
+    database()
+      .ref('/Uid')
+      .on('value', snapshot => {
+        this.setState({ Uid: snapshot.val(), loading: false })
+        console.log(snapshot.val())
+      });
+
+    const ref = storage().ref('categoriesicon/001-electrician.png');
+    ref.getDownloadURL()
+      .then(url => { console.log(url) })
+      .catch(e => { console.log(e); })
+   
+    
   }
 
-  print = () =>{
+  print = () => {
     console.log('OK')
   }
 
@@ -168,7 +176,7 @@ export default class HomeSreen extends Component {
       return;
     }
     if (this.state.description.length < 50) {
-      
+
     }
 
 
@@ -186,15 +194,15 @@ export default class HomeSreen extends Component {
         IconUrl: 'https://firebasestorage.googleapis.com/v0/b/bidstage-ade14.appspot.com/o/categoriesicon%2F001-electrician.png?alt=media&token=84e161a4-3e35-4150-8125-c7a4dbad4e59',
         Uid: this.state.Uid
       })
-      .then(()=>database().ref('/users/'+this.state.useremail.slice(0,-4)+'/myprojects').push().set({
-        CategoryName:this.state.selectedcategory[0],
-        Uid:this.state.Uid
+      .then(() => database().ref('/users/' + this.state.useremail.slice(0, -4) + '/myprojects').push().set({
+        CategoryName: this.state.selectedcategory[0],
+        Uid: this.state.Uid
       }))
-      .then(()=>database().ref().update({
-        Uid:parseInt(this.state.Uid)+1
-      }) )
-      .then(() => this.setState({ postingprojectloading: false, postprojectmodal: false,postingtick:true}))
-      .then(()=>setTimeout(()=>this.setState({postingtick:false}),1000))
+      .then(() => database().ref().update({
+        Uid: parseInt(this.state.Uid) + 1
+      }))
+      .then(() => this.setState({ postingprojectloading: false, postprojectmodal: false, postingtick: true }))
+      .then(() => setTimeout(() => this.setState({ postingtick: false }), 1000))
       .catch(function (error) {
         console.error("Error adding document: ", error);
       });
@@ -204,7 +212,8 @@ export default class HomeSreen extends Component {
     switch (this.state.loading) {
       case false:
         return (
-          <View style={{ height: '91%', backgroundColor: '#FFF'}}>
+          <View style={{ height: '91%', backgroundColor: '#FFF' }}>
+          <StatusBar barStyle='dark-content' hidden={false} backgroundColor='#FFF' translucent={false} />
             <Animatable.View
               animation='fadeInDown'
               duration={1000}
@@ -217,23 +226,23 @@ export default class HomeSreen extends Component {
 
 
               <Modal
-              isVisible={this.state.postingtick}
-              animationIn={"zoomInDown"}
-              animationOut={"zoomOutUp"}
-              useNativeDriver={true}
-              style={{ alignItems: 'center' }}
-            >
-            
-             <LottieView source={require('../assets/tick-green.json')} autoPlay  />
-             <Text style={{fontWeight:'bold',color:'#FFF',marginTop:150}}>Sucessful</Text>
-            </Modal>
+                isVisible={this.state.postingtick}
+                animationIn={"zoomInDown"}
+                animationOut={"zoomOutUp"}
+                useNativeDriver={true}
+                style={{ alignItems: 'center' }}
+              >
+
+                <LottieView source={require('../assets/tick-green.json')} autoPlay />
+                <Text style={{ fontWeight: 'bold', color: '#FFF', marginTop: 150 }}>Sucessful</Text>
+              </Modal>
 
               <Modal
                 isVisible={this.state.postprojectmodal}
                 animationIn={"fadeInUpBig"}
                 animationOut={"fadeOutRightBig"}
                 useNativeDriver={true}
-                style={{margin:0}}
+                style={{ margin: 0 }}
               >{this.state.postingprojectloading ? <View style={{
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -250,7 +259,7 @@ export default class HomeSreen extends Component {
                   >
 
                     <TouchableOpacity
-                      style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' ,padding:10}}
+                      style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 10 }}
                       onPress={this.togglepostprojectdetailmodal}
                     >
                       <FontAwesome
@@ -438,18 +447,18 @@ export default class HomeSreen extends Component {
 
 
             </Animatable.View>
-            
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                numColumns={2}
-                data={this.state.catgories}
-                keyExtractor={item => item.title}
-                renderItem={({ item }) => (
-                  <Animatable.View
-              animation='bounceInUp'
-              useNativeDriver={true}
-              // style={{ height: '100%', backgroundColor: '#FFF', marginTop: 5 }}
-            >
+
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              numColumns={2}
+              data={this.state.catgories}
+              keyExtractor={item => item.title}
+              renderItem={({ item }) => (
+                <Animatable.View
+                  animation='bounceInUp'
+                  useNativeDriver={true}
+                // style={{ height: '100%', backgroundColor: '#FFF', marginTop: 5 }}
+                >
                   <TouchableOpacity
 
                     onPress={() => this.props.navigation.navigate('ProjectListingScreen', { CategoryName: String(item.title) })}
@@ -459,11 +468,11 @@ export default class HomeSreen extends Component {
                       <Text style={styles.title}>{item.title}</Text>
                     </View>
                   </TouchableOpacity>
-                  </Animatable.View>
-                )}
-              />
-              
-           
+                </Animatable.View>
+              )}
+            />
+
+
             <FAB
               style={styles.fab}
               icon="plus"

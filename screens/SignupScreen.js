@@ -613,6 +613,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 0,
         padding: 20,
+        paddingBottom:0
     },
     action: {
         flexDirection: 'row',

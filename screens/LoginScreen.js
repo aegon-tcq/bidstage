@@ -9,7 +9,7 @@ import {
     Alert,
     ImageBackground,
     ScrollView,
-    ActivityIndicator
+    StatusBar
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -140,6 +140,7 @@ class LoginScreen extends Component {
 
         return (
             <View style={styles.container}>
+            <StatusBar barStyle='light-content' hidden={false} backgroundColor='#9d5cff' translucent={true} />
                 <ImageBackground
                     source={require('../assets/contact-purple-top-right.png')}
                     resizeMode='stretch'
@@ -326,14 +327,12 @@ class LoginScreen extends Component {
                             }}
                         >
                             <Text style={{
-                                fontFamily: "roboto-regular",
                                 color: "rgba(29,53,87,1)",
                                 fontSize: 15
                             }}>
                                 Dont have account?
                        </Text>
                             <Text style={{
-                                fontFamily: "roboto-700",
                                 color: "rgba(113,51,209,1)",
                                 fontSize: 18,
                                 fontWeight: 'bold'
