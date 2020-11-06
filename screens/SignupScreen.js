@@ -16,38 +16,10 @@ import Feather from 'react-native-vector-icons/Feather';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import { CirclesLoader } from 'react-native-indicator';
-import MultiSelect from 'react-native-multiple-select';
 
 
-const items = [{
-    id: '92iijs7yta',
-    name: 'Select this if you are going to post the work.'
-  }, {
-    id: 'a0s0a8ssbsd',
-    name: 'Ogun'
-  }, {
-    id: '16hbajsabsd',
-    name: 'Calabar'
-  }, {
-    id: 'nahs75a5sg',
-    name: 'Lagos'
-  }, {
-    id: '667atsas',
-    name: 'Maiduguri'
-  }, {
-    id: 'hsyasajs',
-    name: 'Anambra'
-  }, {
-    id: 'djsjudksjd',
-    name: 'Benue'
-  }, {
-    id: 'sdhyaysdj',
-    name: 'Kaduna'
-  }, {
-    id: 'suudydjsjd',
-    name: 'Abuja'
-    }
-];
+
+
 
 class SignupScreen extends Component {
 
@@ -64,7 +36,7 @@ class SignupScreen extends Component {
         pswd_check: true,
         loading: false,
 
-        selectedItems:[],
+      
         contactno:'',
         isValidno:null
     }
@@ -93,17 +65,12 @@ class SignupScreen extends Component {
         }
     }
     contactInputChange = (val) => {
-        if(val.length == 10){
+       
             this.setState({
                 contactno:val,
                 isValidno:true
             })
-        }else{
-            this.setState({
-                contactno:'',
-                isValidno:false
-            })
-        }
+        
     }
     checkContactno = () => {
         if (this.state.contactno.length != 10) {
@@ -178,12 +145,7 @@ class SignupScreen extends Component {
             ]);
             return;
         }
-        if (this.state.selectedItems.length == 0) {
-            Alert.alert('Wrong Input!', 'Select atleast one skill.', [
-                { text: 'Edit' }
-            ]);
-            return;
-        }
+      
         if (this.state.contactno.length != 10) {
             Alert.alert('Wrong Input!', 'Enter 10 digit phone no..!', [
                 { text: 'Edit' }
@@ -230,7 +192,6 @@ class SignupScreen extends Component {
 
         database().ref('users/' + this.state.email.slice(0, -4)+ '').set({
             phoneno:this.state.contactno,
-            skills:this.state.selectedItems,
             review:[],
             rating:0,
             ratingcount:0,
@@ -243,14 +204,9 @@ class SignupScreen extends Component {
         console.log(this.state.selectedItems)
     }
 
-    onSelectedItemsChange = selectedItems => {
-        console.log(selectedItems)
-        this.setState({ selectedItems });
-      };
-
+    
     render() {
-        const { selectedItems } = this.state;
-        const colors = { text: '#05375a' }
+       
 
         return (
             <View style={styles.container}>
@@ -315,6 +271,7 @@ class SignupScreen extends Component {
                                     style={styles.textInput}
                                     autoCapitalize="none"
                                     onChangeText={this.textInputChange}
+                                    value={this.state.email}
                                     onEndEditing={this.checkEmail}
                                 />
                                 {this.state.isValidemail ?
@@ -341,9 +298,10 @@ class SignupScreen extends Component {
                                     style={styles.textInput}
                                     autoCapitalize="none"
                                     onChangeText={this.contactInputChange}
+                                    value={this.state.contactno}
                                     onEndEditing={this.checkContactno}
                                 />
-                                {this.state.isValidno ?
+                                {this.state.contactno.length == 10 ?
                                     <Animatable.View
                                         animation="bounceIn"
                                     >
@@ -355,32 +313,7 @@ class SignupScreen extends Component {
                                     </Animatable.View>
                                     : null}
                             </View>
-                            <Text style={[styles.text_footer, {
-                                marginTop: 10,
-                                marginBottom:10
-                            }]}>Skills</Text>
-                            <MultiSelect
-                                hideTags
-                                items={items}
-                                uniqueKey="name"
-                                ref={(component) => { this.multiSelect = component }}
-                                onSelectedItemsChange={this.onSelectedItemsChange}
-                                selectedItems={selectedItems}
-                                selectText="Select skills"
-                                searchInputPlaceholderText="Search skills..."
-                                onChangeInput={(text) => console.log(text)}
-                                altFontFamily="ProximaNova-Light"
-                                tagRemoveIconColor="#CCC"
-                                tagBorderColor="#CCC"
-                                tagTextColor="#CCC"
-                                selectedItemTextColor="#0F9D58"
-                                selectedItemIconColor="#0F9D58"
-                                itemTextColor="#CCC"
-                                displayKey="name"
-                                searchInputStyle={{ color: '#CCC' }}
-                                submitButtonColor="#0F9D58"
-                                submitButtonText="Submit"
-                            />
+                           
                             <Text style={[styles.text_footer, {
                                 marginTop: 10
                             }]}>Password</Text>

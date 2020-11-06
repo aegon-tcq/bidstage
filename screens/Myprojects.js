@@ -116,7 +116,7 @@ export default class Myprojects extends Component {
       this.setState({ lastDoc: null })
     }
     this.setState({ isLoading: false });
-    this.setState({ loading: false })
+    setTimeout(()=>this.setState({ loading: false }),1200)
   }
 
   getMore = async () => {
@@ -640,14 +640,10 @@ export default class Myprojects extends Component {
 
 
             {this.state.biddings.length == 0 ?
-              <View style={{ flex: 1, alignItems: 'center', marginTop: '30%' }}>
-                <FontAwesome
-                  name='exclamation-circle'
-                  size={150}
-                  color='#CCC'
-                />
-                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC' }}>None of your bids are accepted.</Text>
-              </View> :
+              <View style={{height:'90%' ,alignItems: 'center' }}>
+              <LottieView source={require('../assets/empty-box.json')} loop={false} autoPlay />
+                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC',marginTop:'10%' }}>Accepted Bid's will be shown here..</Text>
+              </View>:
               <FlatList
                 vertical
                 showsVerticalScrollIndicator={false}
@@ -721,13 +717,7 @@ export default class Myprojects extends Component {
           </View>
         )
       default:
-        return <View style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center'
-        }} >
-          <BubblesLoader color='#7d86f8' />
-        </View>
+        return  <LottieView source={require('../assets/ProposalLoading.json')} autoPlay />
     }
   }
 }

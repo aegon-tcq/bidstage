@@ -10,14 +10,13 @@ import {
   Image,
   ScrollView,
   TextInput,
-  StatusBar
+  ActivityIndicator
 } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import firestore from "@react-native-firebase/firestore";
 import auth from '@react-native-firebase/auth';
 import Modal from 'react-native-modal';
-import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -26,6 +25,7 @@ import * as Animatable from 'react-native-animatable';
 import LottieView from 'lottie-react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import MultiSelect from 'react-native-multiple-select';
 
 import Icon from 'react-native-vector-icons/Entypo';
 
@@ -43,7 +43,6 @@ export default class ProfileScreen extends Component {
       projectdetailmodal: false,
       rating: 0.0,
       ratingcount: 0.0,
-      skills: [],
       reviews: [],
       cnameuid: [],
       myprojects: [],
@@ -60,39 +59,64 @@ export default class ProfileScreen extends Component {
       catname: '',
       uid: '',
       updatingprojectloading: false,
-      postingtick: false
+      postingtick: false,
 
-
+      //state variable for skills
+      updatingskill: false,
+      selectedItems: [],
+      skills: [],
+      myskills: []
 
     }
   }
 
   componentDidMount() {
+    let s = []
     database()
-      .ref('/users/' + auth().currentUser.email.slice(0, -4))
-      .on('value', snapshot => {
-        this.setState({
-          skills: snapshot.val()['skills'],
-          rating: snapshot.val()['rating'],
-          cnameuid: snapshot.val()['myprojects'],
-          ratingcount: snapshot.val()['ratingcount']
-        })
-        let newreviews = []
-        for (let key in snapshot.val()['review']) {
-          newreviews.push(snapshot.val()['review'][key]);
-        }
-        console.log(this.state.cnameuid)
-        this.setState({ reviews: newreviews });
-        console.log(this.state.reviews)
-        if (typeof snapshot.val()['myprojects'] === 'undefined') {
-          this.setState({ loading: false })
-        }
-        else {
-          this.getmyprojects()
-          
+      .ref('/Skills')
+      .once('value')
+      .then(function (snapshot) {
+        for (let k in snapshot.val()) {
+          s.push(snapshot.val()[k])
         }
 
-      });
+      }).then(() => {
+        this.setState({ skills: s })
+        console.log('skill', s)
+      })
+      .then(
+        () => {
+          database()
+            .ref('/users/' + auth().currentUser.email.slice(0, -4))
+            .on('value', snapshot => {
+              this.setState({
+                rating: snapshot.val()['rating'],
+                cnameuid: snapshot.val()['myprojects'],
+                ratingcount: snapshot.val()['ratingcount']
+              })
+              if (!(typeof snapshot.val()['skills'] === 'undefined')) {
+                this.setState({ selectedItems: snapshot.val()['skills'] })
+              }
+              let newreviews = []
+              for (let key in snapshot.val()['review']) {
+                newreviews.push(snapshot.val()['review'][key]);
+              }
+              console.log(this.state.cnameuid)
+              this.setState({ reviews: newreviews });
+              console.log(this.state.reviews)
+              if (typeof snapshot.val()['myprojects'] === 'undefined') {
+                this.setState({ loading: false })
+              }
+              else {
+                this.getmyprojects()
+
+              }
+
+            });
+
+        }
+      )
+
 
   }
 
@@ -120,7 +144,7 @@ export default class ProfileScreen extends Component {
   }
 
   getmyprojects = () => {
-   
+
     let pr = []
     for (let key in this.state.cnameuid) {
       firestore().collection('ProjectDetails').doc('Categories').collection(this.state.cnameuid[key]['CategoryName'] + '').where("Uid", "==", this.state.cnameuid[key]['Uid']).get()
@@ -128,11 +152,11 @@ export default class ProfileScreen extends Component {
           querySnapshot.forEach(function (doc) {
             pr.push(doc.data())
           });
-        }).then(()=> this.setState({ myprojects: pr, loading: false }))
-        .catch((e) => console.log('error project',e))
+        }).then(() => this.setState({ myprojects: pr, loading: false }))
+        .catch((e) => console.log('error project', e))
     }
-    
-    
+
+
   }
 
   getmyprojectsdetail = (item) => {
@@ -245,8 +269,26 @@ export default class ProfileScreen extends Component {
   tick = () => {
     setTimeout(() => this.setState({ postingtick: false }), 400)
   }
+
+  onSelectedItemsChange = selectedItems => {
+
+    this.setState({ selectedItems });
+  };
+
+  onsaveskills = () => {
+
+    this.setState({ updatingskill: true })
+    let res = database().ref('/users/' + auth().currentUser.email.slice(0, -4)).update({
+      skills: this.state.selectedItems
+    })
+    setTimeout(() => this.setState({ updatingskill: false, postingtick: true }), 1000)
+    setTimeout(() => this.setState({ postingtick: false }), 4000)
+
+  }
+
   render() {
     const user = auth().currentUser
+    const { selectedItems } = this.state;
     switch (this.state.loading) {
       case false:
         return (
@@ -305,15 +347,89 @@ export default class ProfileScreen extends Component {
               useNativeDriver={true}
               style={{ margin: 0 }}
             >
-              <View style={styles.modal}>
-                <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.toggleModalskill}>
-                  <Entypo
-                    name='circle-with-cross'
-                    size={20}
-                  />
-                </TouchableOpacity>
-                <View style={{ alignItems: 'center' }}><Text style={{ fontWeight: 'bold' }}>Skills</Text></View>
-                <Text style={{ marginTop: 5, fontSize: 15, color: '#15223D' }}>{this.showskills()}</Text>
+              <View style={{ flex: 1, backgroundColor: '#5a94fc' }}>
+                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', padding: 20 }}>
+                  <Text style={styles.header} >My Skills</Text>
+                  <TouchableOpacity onPress={this.toggleModalskill}>
+                    <FontAwesome
+                      name='arrow-circle-right'
+                      color='#FFF'
+                      size={30}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <Animatable.View
+                  animation='bounceInUp'
+                  duration={1500}
+                  useNativeDriver={true}
+                  style={[styles.list, { padding: 15 }]}
+                >
+                  <ScrollView>
+                    {/* 
+                    {this.state.selectedItems.map((item, key) => (
+                      <View style={{
+                        width: '100%',
+                        borderBottomColor: '#ff7aa2',
+                        borderBottomWidth: 0.5,
+                        borderRadius: 20,
+                        padding: 10,
+
+                      }}>
+                        <Text key={key} style={{ marginLeft: 10, fontWeight: 'bold' }}> {item} </Text>
+                      </View>
+
+                    )
+                    )} */}
+
+                    <View style={{ flex: 1, marginTop: 10 }}>
+                      <Text style={[styles.text_footer, {
+                        marginTop: 10,
+                        marginBottom: 10
+                      }]}>Edit Skills</Text>
+                      <MultiSelect
+                        hideTags={false}
+                        items={this.state.skills}
+                        uniqueKey="name"
+                        ref={(component) => { this.multiSelect = component }}
+                        onSelectedItemsChange={this.onSelectedItemsChange}
+                        selectedItems={selectedItems}
+                        selectText="Select skills"
+                        searchInputPlaceholderText="Search skills..."
+                        onChangeInput={(text) => console.log('below', text)}
+                        altFontFamily="ProximaNova-Light"
+                        tagRemoveIconColor="#15223D"
+                        tagBorderColor="#15223D"
+                        tagTextColor="#ff7aa2"
+                        selectedItemTextColor="#0F9D58"
+                        selectedItemIconColor="#0F9D58"
+                        itemTextColor="#CCC"
+                        displayKey="name"
+                        searchInputStyle={{ color: '#CCC' }}
+                        submitButtonColor="#0F9D58"
+                        submitButtonText="Submit"
+                      />
+                    </View>
+                  </ScrollView>
+                  
+
+                    <TouchableOpacity
+                      style={{
+                        padding: 10,
+                        borderColor:'#5a94fc',
+                        borderWidth:1,
+                        borderRadius:20,
+                        width:'40%',
+                        marginLeft:'30%',
+                        alignItems:'center'
+                      }}
+                      onPress={() => this.onsaveskills()}
+                    >
+                    {this.state.updatingskill ? <ActivityIndicator size='small' color='#5a94fc' /> :
+                      <Text style={{color:'#5a94fc',fontWeight:'bold'}} >Save</Text>  }
+                    </TouchableOpacity>
+                
+                </Animatable.View>
+
 
               </View>
             </Modal>
@@ -326,48 +442,56 @@ export default class ProfileScreen extends Component {
               animationOut={"zoomOut"}
               useNativeDriver={true}
               style={{ margin: 0 }}
-            >{this.state.reviews.length === 0 ?
-              <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-                <LottieView source={require('../assets/no-review.json')} autoPlay />
-                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ fontWeight: 'bold', marginLeft: '35%', color: '#CCC' }}>No Reviews</Text>
-                  <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 5 }} onPress={this.toggleModalreview}>
+            >
+              <View style={{ flex: 1, backgroundColor: '#ff7aa2' }}>
+                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', padding: 20 }}>
+                  <Text style={styles.header} >My Reviews</Text>
+                  <TouchableOpacity onPress={this.toggleModalreview}>
                     <FontAwesome
                       name='arrow-circle-right'
-                      color='#ff6666'
+                      color='#FFF'
                       size={30}
                     />
                   </TouchableOpacity>
                 </View>
-              </View> :
-              <View style={[styles.modal, { flex: 1 }]}>
-                <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.toggleModalreview}>
-                  <FontAwesome
-                    name='arrow-circle-right'
-                    color='#ff6666'
-                    size={30}
-                  />
-                </TouchableOpacity>
-                <View style={{ alignItems: 'center' }}><Text style={{ fontWeight: 'bold' }}>Review</Text></View>
-                <FlatList
-                  data={this.state.reviews}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                    <View style={{
-                      borderColor: '#ff7aa2',
-                      borderBottomWidth: 0.5,
-                      padding: 15,
-                      borderRadius: 20
 
-                    }}>
-                      <Text style={{ fontWeight: 'bold', color: '#15223D' }}>@{item.Uname}</Text>
-                      <Text style={{ marginTop: 5 }}>{item.review}</Text>
+                {this.state.reviews.length === 0 ?
+                  <Animatable.View
+                    animation='bounceInUp'
+                    duration={1500}
+                    useNativeDriver={true}
+                    style={styles.list}
+                  >
+                    <View style={{ height: '80%', backgroundColor: '#FFF', marginTop: 20 }}>
+                      <LottieView source={require('../assets/no-review.json')} autoPlay />
                     </View>
-                  )}
+                    <Text style={{ fontWeight: 'bold', marginLeft: '20%', color: '#CCC' }}>No reviews yet.</Text>
+                  </Animatable.View> :
+                  <Animatable.View
+                    animation='bounceInUp'
+                    duration={1500}
+                    useNativeDriver={true}
+                    style={styles.list}
+                  >
+                    <FlatList
+                      data={this.state.reviews}
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={({ item }) => (
+                        <View style={{
+                          borderColor: '#ff7aa2',
+                          borderBottomWidth: 0.5,
+                          padding: 15,
+                          borderRadius: 20
 
-                />
+                        }}>
+                          <Text style={{ fontWeight: 'bold', color: '#15223D' }}>@{item.Uname}</Text>
+                          <Text style={{ marginTop: 5 }}>{item.review}</Text>
+                        </View>
+                      )}
 
-              </View>}
+                    />
+                  </Animatable.View>}
+              </View>
             </Modal>
 
             {/***************************************Myproject Modal***********************************************/}
@@ -380,100 +504,98 @@ export default class ProfileScreen extends Component {
               useNativeDriver={true}
               style={{ margin: 0 }}
             >
-              {this.state.myprojects.length === 0 ?
-                <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-                  <LottieView source={require('../assets/no-review.json')} autoPlay />
-                  <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ fontWeight: 'bold', marginLeft: '15%', color: '#CCC' }}>No Projects has been posted</Text>
-                    <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }} onPress={this.togglemodalmyproject}>
-                      <FontAwesome
-                        name='arrow-circle-right'
-                        color='#522e38'
-                        size={30}
-                      />
-                    </TouchableOpacity>
 
-                  </View>
+              <View style={{
+                flex: 1, backgroundColor: '#7133D1'
+              }}>
+
+                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', padding: 20 }}>
+                  <Text style={styles.header} >Myproject</Text>
+                  <TouchableOpacity onPress={this.togglemodalmyproject}>
+                    <FontAwesome
+                      name='arrow-circle-right'
+                      color='#FFF'
+                      size={30}
+                    />
+                  </TouchableOpacity>
                 </View>
-                :
-                <View style={{
-                  flex: 1, backgroundColor: '#FFF'
-                }}>
-                
-                  <ImageBackground
-                    source={require('../assets/MyProjects.png')}
-                    style={{alignItems:'center',flexDirection:'row',padding:5,marginTop:10}}
-                    imageStyle={{
-                      width: '95%',
-                      height: 35,
-                    }}
+                {this.state.myprojects.length === 0 ?
+                  <Animatable.View
+                    animation='bounceInUp'
+                    duration={1500}
+                    useNativeDriver={true}
+                    style={styles.list}
                   >
-                    <TouchableOpacity style={{ marginLeft:'90%' }} onPress={this.togglemodalmyproject}>
-                      <FontAwesome
-                        name='arrow-circle-right'
-                        color='#522e38'
-                        size={30}
-                      />
-                    </TouchableOpacity>
-                  </ImageBackground>
-                  <FlatList
-                    vertical
-                    showsVerticalScrollIndicator={false}
-                    data={this.state.myprojects}
-                    keyExtractor={item => item.Uid.toString()}
-                    renderItem={({ item }) => (
-                      <Animatable.View
-                        animation='bounceInUp'
-                        duration={600}
-                        style={styles.projectView}
-                      >
-                        <ImageBackground
-                          source={require('../assets/prbkcg.png')}
-                          resizeMode='stretch'
-                          style={{ flex: 1, padding: 10 }}
-                          imageStyle={{ borderRadius: 20, height: '80%' }}
+                    <View style={{ height: '80%', backgroundColor: '#FFF', marginTop: 20 }}>
+                      <LottieView source={require('../assets/no-review.json')} autoPlay />
+                    </View>
+                    <Text style={{ fontWeight: 'bold', marginLeft: '20%', color: '#CCC' }}>No Projects has been posted</Text>
+                  </Animatable.View>
+                  :
+                  <Animatable.View
+                    animation='bounceInUp'
+                    duration={1500}
+                    useNativeDriver={true}
+                    style={styles.list}
+                  >
+                    <FlatList
+                      vertical
+                      showsVerticalScrollIndicator={false}
+                      data={this.state.myprojects}
+                      keyExtractor={item => item.Uid.toString()}
+                      renderItem={({ item }) => (
+                        <Animatable.View
+                          animation='bounceInUp'
+                          duration={700}
+                          style={styles.projectView}
                         >
-                          <View style={{
-                            flexDirection: 'row',
-                            padding: 5,
-                            alignItems: 'center',
-                          }} >
-                            <Image style={styles.icon} source={{ uri: item.IconUrl }} />
-                            <View style={{ marginLeft: 10, width: '65%' }}>
-                              <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
-                              <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                          <ImageBackground
+                            source={require('../assets/prbkcg.png')}
+                            resizeMode='stretch'
+                            style={{ flex: 1, padding: 10 }}
+                            imageStyle={{ borderRadius: 20, height: '80%' }}
+                          >
+                            <View style={{
+                              flexDirection: 'row',
+                              padding: 5,
+                              alignItems: 'center',
+                            }} >
+                              <Image style={styles.icon} source={{ uri: item.IconUrl }} />
+                              <View style={{ marginLeft: 10, width: '65%' }}>
+                                <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
+                                <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                              </View>
                             </View>
-                          </View>
-                          <View style={{
-                            flexDirection: 'row',
-                            padding: 5,
-                            alignItems: 'center',
-                            justifyContent: 'space-evenly',
-                            marginTop: 10
-                          }}>
-                            <TouchableOpacity
-                              style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                              onPress={() => this.getmyprojectsdetail(item)}
-                            >
-                              <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
-                            </TouchableOpacity>
+                            <View style={{
+                              flexDirection: 'row',
+                              padding: 5,
+                              alignItems: 'center',
+                              justifyContent: 'space-evenly',
+                              marginTop: 10
+                            }}>
+                              <TouchableOpacity
+                                style={[styles.button, { backgroundColor: '#ff7aa2' }]}
+                                onPress={() => this.getmyprojectsdetail(item)}
+                              >
+                                <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
+                              </TouchableOpacity>
 
 
 
-                            <TouchableOpacity
-                              style={[styles.button, { backgroundColor: '#74c69d' }]}
-                              onPress={() => this.editmyproject(item)}
-                            >
-                              <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
-                            </TouchableOpacity>
-                          </View>
+                              <TouchableOpacity
+                                style={[styles.button, { backgroundColor: '#74c69d' }]}
+                                onPress={() => this.editmyproject(item)}
+                              >
+                                <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
+                              </TouchableOpacity>
+                            </View>
 
-                        </ImageBackground>
-                      </Animatable.View>
-                    )}
-                  />
-
-                </View>}
+                          </ImageBackground>
+                        </Animatable.View>
+                      )}
+                    />
+                  </Animatable.View>}
+              </View>
             </Modal>
 
             {/***************************************Myprojectdetail Modal***********************************************/}
@@ -556,7 +678,7 @@ export default class ProfileScreen extends Component {
               style={{ alignItems: 'center' }}
             >
 
-              <LottieView source={require('../assets/tick-green.json')} autoPlay />
+              <LottieView source={require('../assets/tick-green.json')} autoPlay loop={false} />
               <Text style={{ fontWeight: 'bold', color: '#FFF', marginTop: 150 }}>Sucessfully Updated</Text>
             </Modal>
 
@@ -766,7 +888,7 @@ export default class ProfileScreen extends Component {
                 >
                   <MaterialIcons
                     name="rate-review"
-                    color='#FF6666'
+                    color='#ff7aa2'
                     size={25}
                   />
                   <Text style={styles.abouttxt}>
@@ -826,6 +948,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF'
+  },
+  list: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20
+  },
+  header: {
+    fontSize: 20,
+    color: '#FFF',
+    fontWeight: 'bold',
+
   },
   image2: {
     height: '40%',

@@ -24,6 +24,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import { AirbnbRating, Rating } from 'react-native-ratings';
 import LottieView from 'lottie-react-native';
 
+
 // const ProposalsRef = firestore().collection('UserData').doc(this.state.useremail+'').collection('Proposals')
 let onEndReachedCalledDuringMomentum = false;
 
@@ -59,13 +60,13 @@ export default class PrposalsScreen extends Component {
 
       //state variable for reviewing 
       reviewmodalvisible: false,
-      updatingratereview:false,
+      updatingratereview: false,
       postingtick: false,
       rating: 1,
       review: '',
       date: '',
       uid: '',
-      delid:''
+      delid: ''
 
     }
   }
@@ -106,7 +107,7 @@ export default class PrposalsScreen extends Component {
       this.setState({ lastDoc: null })
     }
     this.setState({ isLoading: false });
-    this.setState({ loading: false })
+    setTimeout(() => this.setState({ loading: false }), 1200)
   }
 
   getMore = async () => {
@@ -182,7 +183,7 @@ export default class PrposalsScreen extends Component {
           selected: Selected,
           loadingbidderinfo: false
         })
-      
+
 
       });
 
@@ -228,8 +229,8 @@ export default class PrposalsScreen extends Component {
     this.componentDidMount()
   }
 
-  editreview = (val,id) => {
-    this.setState({ uid: val,delid:id })
+  editreview = (val, id) => {
+    this.setState({ uid: val, delid: id })
     Alert.alert(
       "Confirmation.!",
       "You should review only when the work has completed.",
@@ -251,7 +252,7 @@ export default class PrposalsScreen extends Component {
 
   submitreview = () => {
 
-    this.setState({updatingratereview:true})
+    this.setState({ updatingratereview: true })
 
     console.log(this.state.uid)
 
@@ -268,58 +269,58 @@ export default class PrposalsScreen extends Component {
       .then(() => {
         if (this.state.review.length > 0) {
           database().ref('/users/' + this.state.uid.slice(0, -4) + '/review').push().set({
-            Uname: auth().currentUser.email.slice(0,-11),
+            Uname: auth().currentUser.email.slice(0, -11),
             review: this.state.review,
             date: ''
           })
         }
       })
       .then(() => {
-       
+
         database().ref('/users/' + this.state.uid.slice(0, -4)).update({
           rating: parseInt(((rating + this.state.rating) / (ratingcount + 1)).toFixed(1)),
           ratingcount: ratingcount + 1
         })
         this.deletingremainig()
-      }).catch((e)=>console.log(e))
+      }).catch((e) => console.log(e))
 
   }
-  
+
   deletingremainig = () => {
     let cname = ''
     console.log(this.state.delid)
 
-    for(let i=0;i<this.state.poroposals.length;i++){
-      if(this.state.poroposals[i].Uid == this.state.delid){
-        cname = this.state.poroposals[i].Category 
+    for (let i = 0; i < this.state.poroposals.length; i++) {
+      if (this.state.poroposals[i].Uid == this.state.delid) {
+        cname = this.state.poroposals[i].Category
         break
       }
     }
 
-   
+
     firestore().collection('UserData').doc(this.state.useremail + '').collection('Proposals').where("Uid", "==", this.state.delid)
-    .get().then(function(querySnapshot) {
-      querySnapshot.forEach(function(doc) {
-        doc.ref.delete();
-      });
-    })
-  .then(()=>{
-    firestore().collection('UserData').doc(this.state.uid + '').collection('Biddings').doc(this.state.delid + '').update({
-      Reviewed:true
-    }).then(()=>{
-      setTimeout(()=>this.setState({updatingratereview:false}),1000)
-      this.setState({
-        reviewmodalvisible:false,
-        bidderdetailmodal:false,
-        postingtick:true
+      .get().then(function (querySnapshot) {
+        querySnapshot.forEach(function (doc) {
+          doc.ref.delete();
+        });
       })
-    })  
-  }).then(()=> setTimeout(()=>this.setState({postingtick:false}),700))
+      .then(() => {
+        firestore().collection('UserData').doc(this.state.uid + '').collection('Biddings').doc(this.state.delid + '').update({
+          Reviewed: true
+        }).then(() => {
+          setTimeout(() => this.setState({ updatingratereview: false }), 1000)
+          this.setState({
+            reviewmodalvisible: false,
+            bidderdetailmodal: false,
+            postingtick: true
+          })
+        })
+      }).then(() => setTimeout(() => this.setState({ postingtick: false }), 700))
 
     console.log('All complete')
   }
 
-  
+
   render() {
     switch (this.state.loading) {
       case false:
@@ -434,7 +435,7 @@ export default class PrposalsScreen extends Component {
                 {this.state.selected ?
                   <TouchableOpacity
                     style={[styles.button, { backgroundColor: '#74c69d' }]}
-                    onPress={() => this.editreview(this.state.uname,this.state.projectid)}
+                    onPress={() => this.editreview(this.state.uname, this.state.projectid)}
                   >
                     <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Review</Text>
                   </TouchableOpacity> :
@@ -455,97 +456,97 @@ export default class PrposalsScreen extends Component {
               useNativeDriver={true}
               style={{ margin: 0 }}
             >
-            {this.state.updatingratereview ?
+              {this.state.updatingratereview ?
                 <View style={{ flex: 1, backgroundColor: '#FFF' }}>
                   <LottieView source={require('../assets/writing.json')} autoPlay />
-                </View>:
-              <View style={{ flex: 1, backgroundColor: '#FFF', padding: 10 }} >
+                </View> :
+                <View style={{ flex: 1, backgroundColor: '#FFF', padding: 10 }} >
 
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
-                  onPress={this.togglereviewmodal}
-                >
-                  <Icon
-                    name='circle-with-cross'
-                    size={35}
-                  />
-                </TouchableOpacity>
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                >
-                  <View style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 30
-                  }}>
-                    <AntDesign
-                      name='like2'
+                  <TouchableOpacity
+                    style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
+                    onPress={this.togglereviewmodal}
+                  >
+                    <Icon
+                      name='circle-with-cross'
                       size={35}
-                      color='#CCC'
                     />
-                    <Text style={{
-                      color: "rgba(126,146,166,1)",
-                      textAlign: "center",
-                      fontSize: 18,
-                      opacity: 0.81,
-                      marginTop: 10
-                    }} >How likely you would recommend this worker to a friend or colleague?</Text>
-                  </View>
-                  <View style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 20,
-                  }} >
-                    <Rating
-                      type='custom'
-                      count={5}
-                      minValue={1}
-                      size={30}
-                      ratingTextColor='#7d86f8'
-                      fractions={1}
-                      showRating
-                      startingValue={1}
-                      onFinishRating={(val) => this.setState({ rating: val })}
-                    />
-                    <Text style={styles.text_footer}>Description</Text>
-                    <View style={styles.action}>
-                      <Icon
-                        name="text-document"
-                        color="#15223D"
-                        size={20}
+                  </TouchableOpacity>
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                  >
+                    <View style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 30
+                    }}>
+                      <AntDesign
+                        name='like2'
+                        size={35}
+                        color='#CCC'
                       />
-                      <TextInput
-                        placeholder="Describe your experience.."
-                        multiline={true}
-                        numberOfLines={2}
-                        style={styles.textInput}
-                        autoCapitalize="none"
-                        onChangeText={this.reviewcheck}
-                        value={this.state.review}
-                      />
-
+                      <Text style={{
+                        color: "rgba(126,146,166,1)",
+                        textAlign: "center",
+                        fontSize: 18,
+                        opacity: 0.81,
+                        marginTop: 10
+                      }} >How likely you would recommend this worker to a friend or colleague?</Text>
                     </View>
-                  </View>
+                    <View style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 20,
+                    }} >
+                      <Rating
+                        type='custom'
+                        count={5}
+                        minValue={1}
+                        size={30}
+                        ratingTextColor='#7d86f8'
+                        fractions={1}
+                        showRating
+                        startingValue={1}
+                        onFinishRating={(val) => this.setState({ rating: val })}
+                      />
+                      <Text style={styles.text_footer}>Description</Text>
+                      <View style={styles.action}>
+                        <Icon
+                          name="text-document"
+                          color="#15223D"
+                          size={20}
+                        />
+                        <TextInput
+                          placeholder="Describe your experience.."
+                          multiline={true}
+                          numberOfLines={2}
+                          style={styles.textInput}
+                          autoCapitalize="none"
+                          onChangeText={this.reviewcheck}
+                          value={this.state.review}
+                        />
 
-                </ScrollView>
-                <Text style={{
-                  color: "#CCC",
-                  textAlign: "center",
-                  fontSize: 10,
-                  opacity: 0.81,
-                  marginBottom: 10
-                }} >Your feedback is very important to improve this profile.</Text>
-                <TouchableOpacity
-                  style={[styles.button, { backgroundColor: '#7d86f8' }]}
-                  onPress={() => this.submitreview()}
-                >
+                      </View>
+                    </View>
 
-                  <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 15 }}>Submit Rview</Text>
-                </TouchableOpacity>
+                  </ScrollView>
+                  <Text style={{
+                    color: "#CCC",
+                    textAlign: "center",
+                    fontSize: 10,
+                    opacity: 0.81,
+                    marginBottom: 10
+                  }} >Your feedback is very important to improve this profile.</Text>
+                  <TouchableOpacity
+                    style={[styles.button, { backgroundColor: '#7d86f8' }]}
+                    onPress={() => this.submitreview()}
+                  >
 
-              </View>}
+                    <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 15 }}>Submit Rview</Text>
+                  </TouchableOpacity>
+
+                </View>}
 
             </Modal>
 
@@ -563,97 +564,94 @@ export default class PrposalsScreen extends Component {
 
             {/**********************************Lists of porposals*************************************************/}
 
-            {this.state.poroposals.length == 0 ?
-              <View style={{ flex: 1, alignItems: 'center', marginTop: '30%' }}>
-                <FontAwesome
-                  name='exclamation-circle'
-                  size={150}
-                  color='#CCC'
-                />
-                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC' }}>You haven't posted any projects yet..</Text>
-              </View> :
-              <FlatList
-                vertical
-                showsVerticalScrollIndicator={false}
-                data={this.state.poroposals}
-                keyExtractor={item => item.Uid.toString()}
-                renderItem={({ item }) => (
-                  <Animatable.View
-                    animation='bounceInUp'
-                    duration={600}
-                    style={styles.projectView}
+
+            {this.state.poroposals.length == 0?
+            <View style={{height:'90%' ,alignItems: 'center',backgroundColor:'#FFF' }}>
+                <LottieView source={require('../assets/empty-box.json')} loop={false} autoPlay />
+                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC',marginTop:'10%' }}>No proposals yet..</Text>
+              </View>:
+            <FlatList
+              vertical
+              showsVerticalScrollIndicator={false}
+              data={this.state.poroposals}
+              keyExtractor={item => item.Uid.toString()}
+              renderItem={({ item }) => (
+                <Animatable.View
+                  animation='bounceInUp'
+                  duration={600}
+                  style={styles.projectView}
+                >
+                  <ImageBackground
+                    source={require('../assets/ProposalBKND.png')}
+                    resizeMode='stretch'
+                    style={{ padding: 10 }}
+                    imageStyle={{ height: '70%', borderRadius: 20 }}
                   >
-                    <ImageBackground
-                      source={require('../assets/ProposalBKND.png')}
-                      resizeMode='stretch'
-                      style={{ padding: 10 }}
-                      imageStyle={{ height: '70%', borderRadius: 20 }}
-                    >
-                      <View style={{
-                        flexDirection: 'row',
-                        padding: 5,
-                        alignItems: 'center',
-                      }} >
-                        <View style={{ marginLeft: 10, width: '65%' }}>
-                          <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Description.slice(0, 35)}...</Text>
-                          <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Rate} Rs</Text>
-                        </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      alignItems: 'center',
+                    }} >
+                      <View style={{ marginLeft: 10, width: '65%' }}>
+                        <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Description.slice(0, 35)}...</Text>
+                        <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Rate} Rs</Text>
                       </View>
-                      <View style={{
-                        flexDirection: 'row',
-                        padding: 5,
-                        alignItems: 'center',
-                        justifyContent: 'space-evenly',
-                        marginTop: 10
-                      }}>
+                    </View>
+                    <View style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      alignItems: 'center',
+                      justifyContent: 'space-evenly',
+                      marginTop: 10
+                    }}>
+                      <TouchableOpacity
+                        style={[styles.button, { backgroundColor: '#ff7aa2' }]}
+                        onPress={() => this.setbidderdetail(item.BidId, item.Description, item.Uid, item.Rate, item.TimeLimit, item.Selected)}
+                      >
+                        <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Bidders Details</Text>
+                      </TouchableOpacity>
+
+
+                      {item.Selected ?
                         <TouchableOpacity
-                          style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                          onPress={() => this.setbidderdetail(item.BidId, item.Description, item.Uid, item.Rate, item.TimeLimit, item.Selected)}
+                          style={[styles.button, { backgroundColor: '#74c69d' }]}
+                          onPress={() => this.editreview(item.BidId, item.Uid)}
                         >
-                          <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Bidders Details</Text>
-                        </TouchableOpacity>
+                          <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Review</Text>
+                        </TouchableOpacity> :
+                        <TouchableOpacity
+                          style={[styles.button, { backgroundColor: '#74c69d' }]}
+                          onPress={() => this.checkhirebidder(item.BidId, item.Uid)}
+                        >
 
+                          <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>
+                        </TouchableOpacity>}
+                    </View>
 
-                        {item.Selected ?
-                          <TouchableOpacity
-                            style={[styles.button, { backgroundColor: '#74c69d' }]}
-                            onPress={() => this.editreview(item.BidId,item.Uid)}
-                          >
-                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Review</Text>
-                          </TouchableOpacity> :
-                          <TouchableOpacity
-                            style={[styles.button, { backgroundColor: '#74c69d' }]}
-                            onPress={() => this.checkhirebidder(item.BidId, item.Uid)}
-                          >
-
-                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>
-                          </TouchableOpacity>}
-                      </View>
-
-                    </ImageBackground>
-                  </Animatable.View>
-                )}
-                ListFooterComponent={this.renderFooter}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={this.state.isLoading}
-                    onRefresh={this.onRefresh}
-                  />
+                  </ImageBackground>
+                </Animatable.View>
+              )}
+              ListFooterComponent={this.renderFooter}
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.state.isLoading}
+                  onRefresh={this.onRefresh}
+                />
+              }
+              initialNumToRender={2}
+              onEndReachedThreshold={0.1}
+              onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum = false; }}
+              onEndReached={() => {
+                if (!onEndReachedCalledDuringMomentum && !this.state.isLoading) {
+                  this.getMore();
                 }
-                initialNumToRender={2}
-                onEndReachedThreshold={0.1}
-                onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum = false; }}
-                onEndReached={() => {
-                  if (!onEndReachedCalledDuringMomentum && !this.state.isLoading) {
-                    this.getMore();
-                  }
-                }
-                }
-              />}
+              }
+              }
+            />}
           </View>
         )
       default:
-        return <LottieView source={require('../assets/bidloading.json')} autoPlay loop />
+        return <LottieView source={require('../assets/ProposalLoading.json')} autoPlay />
     }
   }
 }

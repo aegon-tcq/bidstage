@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
+  View,
+  Text
 } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -12,6 +13,10 @@ import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen.js';
 import auth from '@react-native-firebase/auth';
 import BottomNavigator from './Components/BottomNavigator.js';
+
+import LottieView from 'lottie-react-native';
+
+
 const Stack = createStackNavigator();
 
 class App extends Component {
@@ -23,7 +28,7 @@ class App extends Component {
 
   componentDidMount(){
 
-    auth().onAuthStateChanged((user) => {
+    setTimeout(()=>auth().onAuthStateChanged((user) => { 
       if (user) {
         this.setState({
           LoggedIn: true
@@ -34,7 +39,8 @@ class App extends Component {
           LoggedIn: false
         })
       }
-    })
+    
+  }),1200)
   }
 
   render() {
@@ -55,14 +61,10 @@ class App extends Component {
         return <BottomNavigator />
 
       default:
-        return <ActivityIndicator
-          style={{
-            flex:1,
-            backgroundColor: 'rgba(125,134,248,1)',
-          }}
-          size='large'
-          color='#F1FAEE'
-        />
+        return <View style={{flex:1,alignItems:'center'}}>
+           <LottieView source={require('./assets/splash.json')} autoPlay loop={false} />
+           <Text style={{marginTop:'95%',color:'#7d86f8',fontWeight:'bold',fontSize:20}}>BidStage</Text>
+        </View>
 
     }
   }

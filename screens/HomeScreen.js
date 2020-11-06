@@ -86,13 +86,16 @@ export default class HomeSreen extends Component {
         for (let i = 0; i < this.state.catgories.length; i++) {
           cname.push({ name: this.state.catgories[i].title })
         }
-        this.setState({ catname: cname, loading: false })
+        this.setState({ catname: cname })
+        setTimeout(()=>this.setState({ loading: false }),600)
         console.log(this.state.catname)
       });
     database()
       .ref('/Uid')
       .on('value', snapshot => {
-        this.setState({ Uid: snapshot.val(), loading: false })
+        this.setState({ Uid: snapshot.val() })
+        setTimeout(()=>this.setState({ loading: false }),600)
+  
         console.log(snapshot.val())
       });
 
@@ -481,13 +484,7 @@ export default class HomeSreen extends Component {
           </View>
         )
       default:
-        return <View style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center'
-        }} >
-          <BubblesLoader color='#7d86f8' />
-        </View>
+        return  <LottieView source={require('../assets/HomeLoading.json')} autoPlay />
     }
   }
 }
