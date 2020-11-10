@@ -23,8 +23,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { AirbnbRating, Rating } from 'react-native-ratings';
 import LottieView from 'lottie-react-native';
-
-
+import LinearGradient from 'react-native-linear-gradient';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 // const ProposalsRef = firestore().collection('UserData').doc(this.state.useremail+'').collection('Proposals')
 let onEndReachedCalledDuringMomentum = false;
 
@@ -326,9 +326,25 @@ export default class PrposalsScreen extends Component {
       case false:
         return (
           <View>
-            <View style={styles.topview}>
-              <Text style={styles.header}>Proposals</Text>
-            </View>
+            <LinearGradient
+              colors={['#a78ee5', '#ea9fdb']}
+
+              start={{ x: 0.7, y: 0 }}
+            >
+              <View style={styles.topview}>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.goBack()}
+                >
+                  <MaterialCommunityIcons
+                    name='arrow-left'
+                    size={25}
+                    color='#15223D'
+                  />
+                </TouchableOpacity>
+                <Text style={styles.header}>Proposals</Text>
+                <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/proposal.png')} />
+              </View>
+            </LinearGradient>
 
 
             <Modal
@@ -658,13 +674,13 @@ export default class PrposalsScreen extends Component {
 
 const styles = StyleSheet.create({
   topview: {
-    backgroundColor: '#7d86f8',
+    backgroundColor: '#FFF',
     width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    padding: 10,
+    justifyContent: 'space-between',
+    borderBottomLeftRadius: 50,
+    padding: 15,
+    flexDirection: 'row',
     shadowColor: "rgb(125, 134, 248)",
     shadowOffset: {
       height: 20,
@@ -675,8 +691,8 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
   },
   header: {
-    fontSize: 20,
-    color: '#FFF',
+    fontSize: 18,
+    color: '#7d86f8',
     fontWeight: 'bold',
 
   },

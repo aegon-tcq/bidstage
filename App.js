@@ -40,7 +40,7 @@ class App extends Component {
         })
       }
     
-  }),1200)
+  }),1000)
   }
 
   render() {

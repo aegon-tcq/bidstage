@@ -26,6 +26,7 @@ import { RippleLoader, BubblesLoader } from 'react-native-indicator';
 import Modal from 'react-native-modal';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import LottieView from 'lottie-react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 // const Biddingref = firestore().collection('UserData').doc(this.state.useremail + '').collection('Biddings')
@@ -328,9 +329,25 @@ export default class Myprojects extends Component {
       case false:
         return (
           <View>
-            <View style={styles.topview}>
-              <Text style={styles.header}>Accepted Bids</Text>
-            </View>
+            <LinearGradient
+              colors={['#a78ee5', '#ea9fdb']}
+
+              start={{ x: 0.7, y: 0 }}
+            >
+              <View style={styles.topview}>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.goBack()}
+                >
+                  <MaterialCommunityIcons
+                    name='arrow-left'
+                    size={25}
+                    color='#15223D'
+                  />
+                </TouchableOpacity>
+                <Text style={styles.header}>My Bids</Text>
+                <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/legal.png')} />
+              </View>
+            </LinearGradient>
 
 
             <Modal
@@ -724,13 +741,13 @@ export default class Myprojects extends Component {
 
 const styles = StyleSheet.create({
   topview: {
-    backgroundColor: '#7d86f8',
+    backgroundColor: '#FFF',
     width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    padding: 10,
+    justifyContent: 'space-between',
+    borderBottomLeftRadius: 50,
+    padding: 15,
+    flexDirection: 'row',
     shadowColor: "rgb(125, 134, 248)",
     shadowOffset: {
       height: 20,
@@ -741,8 +758,8 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
   },
   header: {
-    fontSize: 20,
-    color: '#FFF',
+    fontSize: 18,
+    color: '#7d86f8',
     fontWeight: 'bold',
 
   },

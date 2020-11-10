@@ -26,7 +26,7 @@ import LottieView from 'lottie-react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import MultiSelect from 'react-native-multiple-select';
-
+import { TouchableRipple } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Entypo';
 
 const { width, height } = Dimensions.get('window');

@@ -11,7 +11,9 @@ import {
   ImageBackground,
   ScrollView,
   TextInput,
-  Alert
+  Alert,
+  Dimensions,
+  StatusBar
 } from 'react-native';
 import firestore from "@react-native-firebase/firestore";
 import Modal from 'react-native-modal';
@@ -23,10 +25,13 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { BubblesLoader } from 'react-native-indicator';
 import auth from '@react-native-firebase/auth';
 import LottieView from 'lottie-react-native';
+import HeaderComponent from '../Components/HeaderComponent.js';
+import LinearGradient from 'react-native-linear-gradient';
 
-
+const { width, height } = Dimensions.get('window');
 const projectRef = firestore().collection('ProjectDetails').doc('Categories');
 let onEndReachedCalledDuringMomentum = false;
+
 
 export default class ProjectListingScreen extends Component {
 
@@ -88,7 +93,7 @@ export default class ProjectListingScreen extends Component {
     }
     console.log('projects ', this.state.C_Name)
     setTimeout(() => this.setState({ isLoading: false }), 1200)
-    
+
   }
 
   getMore = async () => {
@@ -262,20 +267,34 @@ export default class ProjectListingScreen extends Component {
 
   }
   render() {
-    switch(this.state.isLoading){
+    switch (this.state.isLoading) {
       case false:
         return (
           <View style={{ height: '90%' }}>
-    
-    
+            <StatusBar barStyle="dark-content" hidden={false} backgroundColor="#FFF" translucent={false} />
+
             {/*******************************************Header*******************************************************/}
-    
-            <View style={styles.topview}>
-              <Text style={styles.header}>{this.props.route.params.CategoryName}</Text>
-            </View>
-    
+            <LinearGradient
+              colors={['#a78ee5', '#ea9fdb']}
+
+              start={{ x: 0.7, y: 0 }}
+            >
+              <View style={styles.topview}>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.goBack()}
+                >
+                  <MaterialCommunityIcons
+                    name='arrow-left'
+                    size={25}
+                    color='#15223D'
+                  />
+                </TouchableOpacity>
+                <Text style={styles.header}>{this.props.route.params.CategoryName}</Text>
+                <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={{ uri: this.props.route.params.url }} />
+              </View>
+            </LinearGradient>
             {/*************************Project Details Modal***********************************************************/}
-    
+
             <Modal
               isVisible={this.state.modalVisible}
               animationIn={"zoomInDown"}
@@ -290,7 +309,7 @@ export default class ProjectListingScreen extends Component {
                   style={styles.image2}
                   imageStyle={styles.image2_imageStyle}
                 >
-    
+
                   <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }} onPress={this.toggleModal}>
                     <Icon
                       name='circle-with-cross'
@@ -328,7 +347,7 @@ export default class ProjectListingScreen extends Component {
                     <Text style={styles.title}>Uid  :</Text>
                     <Text style={{ marginTop: 5, color: '#CCC' }}>{this.state.uid}</Text>
                   </View>
-    
+
                 </ScrollView>
                 {auth().currentUser.email == this.state.Ownerid ?
                   <TouchableOpacity
@@ -348,11 +367,11 @@ export default class ProjectListingScreen extends Component {
                   </TouchableOpacity>}
               </View>
             </Modal>
-    
-    
+
+
             {/*************************Project Bid Modal***********************************************************/}
-    
-    
+
+
             <Modal
               isVisible={this.state.bidmodalVisible}
               animationIn={"zoomInDown"}
@@ -375,7 +394,7 @@ export default class ProjectListingScreen extends Component {
                     style={styles.image2}
                     imageStyle={styles.image2_imageStyle}
                   >
-    
+
                     <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }} onPress={this.togglebidmodal}>
                       <Icon
                         name='circle-with-cross'
@@ -451,115 +470,122 @@ export default class ProjectListingScreen extends Component {
                   </ScrollView>
                 </View>}
             </Modal>
-    
-    
+
+
             {/*************************Project Listings***********************************************************/}
-    
+
             {this.state.projects.length == 0 ?
-                  <View style={{height:'90%' ,alignItems: 'center' }}>
-                  <LottieView source={require('../assets/empty-box.json')} loop={false} autoPlay />
-                    <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC',marginTop:'10%' }}>No Work found in {this.props.route.params.CategoryName} </Text>
-                  </View>:
-            <FlatList
-              vertical
-              showsVerticalScrollIndicator={false}
-              data={this.state.projects}
-              keyExtractor={item => item.Uid.toString()}
-              renderItem={({ item }) => (
-                <Animatable.View
-                  animation='bounceInUp'
-                  duration={600}
-                  style={styles.projectView}
-                >
-                  <ImageBackground
-                    source={require('../assets/prbkcg.png')}
-                    resizeMode='stretch'
-                    style={{ flex: 1, padding: 10 }}
-                    imageStyle={{ borderRadius: 20, height: '80%' }}
+              <View style={{ height: '90%', alignItems: 'center' }}>
+                <LottieView source={require('../assets/empty-box.json')} loop={false} autoPlay />
+                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC', marginTop: '10%' }}>No Work found in {this.props.route.params.CategoryName} </Text>
+              </View> :
+              <FlatList
+                vertical
+                showsVerticalScrollIndicator={false}
+                data={this.state.projects}
+                keyExtractor={item => item.Uid.toString()}
+                renderItem={({ item }) => (
+                  <Animatable.View
+                    animation='bounceInUp'
+                    duration={600}
+                    style={styles.projectView}
                   >
-                    <View style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      alignItems: 'center',
-                    }} >
-                      <Image style={styles.icon} source={{ uri: item.IconUrl }} />
-                      <View style={{ marginLeft: 10, width: '65%' }}>
-                        <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
-                        <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                    <ImageBackground
+                      source={require('../assets/prbkcg.png')}
+                      resizeMode='stretch'
+                      style={{ flex: 1, padding: 10 }}
+                      imageStyle={{ borderRadius: 20, height: '80%' }}
+                    >
+                      <View style={{
+                        flexDirection: 'row',
+                        padding: 5,
+                        alignItems: 'center',
+                      }} >
+                        <Image style={styles.icon} source={{ uri: item.IconUrl }} />
+                        <View style={{ marginLeft: 10, width: '65%' }}>
+                          <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
+                          <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                        </View>
                       </View>
-                    </View>
-                    <View style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      alignItems: 'center',
-                      justifyContent: 'space-evenly',
-                      marginTop: 10
-                    }}>
-                      <TouchableOpacity
-                        style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                        onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description, item.Uid, this.props.route.params.CategoryName, item.Pid, item.Location, item.Prefrences, item.Uid)}
-                      >
-                        <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
-                      </TouchableOpacity>
-    
-    
-                      {auth().currentUser.email == item.Pid ?
+                      <View style={{
+                        flexDirection: 'row',
+                        padding: 5,
+                        alignItems: 'center',
+                        justifyContent: 'space-evenly',
+                        marginTop: 10
+                      }}>
                         <TouchableOpacity
-                          style={[styles.button, { backgroundColor: '#74c69d', opacity: 0.4 }]}
-                          onPress={() => Alert.alert("Can't Bid!", 'this work is posted by you..', [
-                            { text: 'Okay' }
-                          ])}
+                          style={[styles.button, { backgroundColor: '#ff7aa2' }]}
+                          onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description, item.Uid, this.props.route.params.CategoryName, item.Pid, item.Location, item.Prefrences, item.Uid)}
                         >
-                          <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                          <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
                         </TouchableOpacity>
-                        :
-                        <TouchableOpacity
-                          style={[styles.button, { backgroundColor: '#74c69d' }]}
-                          onPress={() => this.setBidDetailModal(item.Uid, this.props.route.params.CategoryName, item.Pid)}
-                        >
-                          <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
-                        </TouchableOpacity>}
-                    </View>
-    
-                  </ImageBackground>
-                </Animatable.View>
-              )}
-              ListFooterComponent={this.renderFooter}
-              refreshControl={
-                <RefreshControl
-                  refreshing={this.state.isLoading}
-                  onRefresh={this.onRefresh}
-                />
-              }
-              initialNumToRender={2}
-              onEndReachedThreshold={0.1}
-              onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum = false; }}
-              onEndReached={() => {
-                if (!onEndReachedCalledDuringMomentum && !this.state.isLoading) {
-                  this.getMore();
+
+
+                        {auth().currentUser.email == item.Pid ?
+                          <TouchableOpacity
+                            style={[styles.button, { backgroundColor: '#74c69d', opacity: 0.4 }]}
+                            onPress={() => Alert.alert("Can't Bid!", 'this work is posted by you..', [
+                              { text: 'Okay' }
+                            ])}
+                          >
+                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                          </TouchableOpacity>
+                          :
+                          <TouchableOpacity
+                            style={[styles.button, { backgroundColor: '#74c69d' }]}
+                            onPress={() => this.setBidDetailModal(item.Uid, this.props.route.params.CategoryName, item.Pid)}
+                          >
+                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                          </TouchableOpacity>}
+                      </View>
+
+                    </ImageBackground>
+                  </Animatable.View>
+                )}
+                ListHeaderComponent={() =>
+                  <HeaderComponent
+                    data={this.props.route.params.def}
+                    color={['#a78ee5', '#ea9fdb']}
+
+                  />
                 }
-              }
-              }
-            />}
+                ListFooterComponent={this.renderFooter}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={this.state.isLoading}
+                    onRefresh={this.onRefresh}
+                  />
+                }
+                initialNumToRender={2}
+                onEndReachedThreshold={0.1}
+                onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum = false; }}
+                onEndReached={() => {
+                  if (!onEndReachedCalledDuringMomentum && !this.state.isLoading) {
+                    this.getMore();
+                  }
+                }
+                }
+              />}
           </View>
         )
 
-        default:
-          return <LottieView source={require('../assets/ProposalLoading.json')} autoPlay />
+      default:
+        return <LottieView source={require('../assets/ProposalLoading.json')} autoPlay />
     }
-    
+
   }
 }
 
 const styles = StyleSheet.create({
   topview: {
-    backgroundColor: '#7d86f8',
+    backgroundColor: '#FFF',
     width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    justifyContent: 'space-between',
+    borderBottomLeftRadius: 50,
     padding: 10,
+    flexDirection: 'row',
     shadowColor: "rgb(125, 134, 248)",
     shadowOffset: {
       height: 20,
@@ -570,8 +596,8 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
   },
   header: {
-    fontSize: 20,
-    color: '#FFF',
+    fontSize: 18,
+    color: '#7d86f8',
     fontWeight: 'bold',
 
   },
