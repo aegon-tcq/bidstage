@@ -59,18 +59,21 @@ export default class HomeSreen extends Component {
       activeIndex: 0,
       carouselItems: [
         {
-          title: "Pro Tip*",
+          icon: require('../assets/lightbulb.png'),
+          title: "Pro Tip",
           text: "Complete your profile first so that employer can know more about you.",
           color: ['#a78ee5', '#617df0',]
 
         },
         {
-          title: "#Expertise",
+          icon: require('../assets/001-experience.png'),
+          title: "Expertise",
           text: "Browsing work accroding to your expertise will get you more earning.",
           color: ['#ffb198', '#ff8892', '#ff498a']
         },
         {
-          title: "#Profile",
+          icon: require('../assets/profile.png'),
+          title: "Profile",
           text: "Maintaining a profile with good rating increases the chance  for your bid wining. ",
           color: ['#a78ee5', '#ea9fdb',]
         }
@@ -103,14 +106,13 @@ export default class HomeSreen extends Component {
           cname.push({ name: this.state.catgories[i].title })
         }
         this.setState({ catname: cname })
-        setTimeout(() => this.setState({ loading: false }), 600)
-        console.log(this.state.catname)
+
       });
     database()
       .ref('/Uid')
       .on('value', snapshot => {
-        this.setState({ Uid: snapshot.val() })
-        setTimeout(() => this.setState({ loading: false }), 600)
+        this.setState({ Uid: snapshot.val(), loading: false })
+
 
         console.log(snapshot.val())
       });
@@ -195,8 +197,12 @@ export default class HomeSreen extends Component {
       return;
     }
     if (this.state.description.length < 50) {
-
+      Alert.alert('Wrong description!', 'Atleast 50 characters of decsription.', [
+        { text: 'Edit' }
+      ]);
+      return;
     }
+
 
 
 
@@ -204,6 +210,7 @@ export default class HomeSreen extends Component {
 
     firestore().collection('ProjectDetails').doc('Categories').collection(this.state.selectedcategory[0] + '')
       .add({
+        Date: (new Date()).getTime(),
         Title: this.state.title,
         Budget: this.state.budget,
         Description: this.state.description,
@@ -265,8 +272,15 @@ export default class HomeSreen extends Component {
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
       >
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={item.icon}
+            style={{ height: 30, width: 30 }}
+          />
+          <Text style={{ fontSize: 18, color: '#FFF', fontWeight: 'bold', marginLeft: 10 }}>{item.title}</Text>
 
-        <Text style={{ fontSize: 18, color: '#FFF', fontWeight: 'bold' }}>{item.title}</Text>
+        </View>
+
         <Text style={{ fontSize: 13, color: '#FFF' }}>{item.text}</Text>
       </LinearGradient>
 
@@ -306,38 +320,39 @@ export default class HomeSreen extends Component {
 
               <Modal
                 isVisible={this.state.postprojectmodal}
-                animationIn={"fadeInUpBig"}
-                animationOut={"fadeOutRightBig"}
+                animationIn={"zoomInUp"}
+                animationOut={"zoomOutUp"}
                 useNativeDriver={true}
                 style={{ margin: 0 }}
+                avoidKeyboard={true}
               >
-                <LinearGradient
-                  colors={['#ff498a', '#ff8892', '#ffb198']}
+                <View
                   style={styles.postprojectmodal}
-                  start={{ x: 0, y: 0.5 }}
-                  end={{ x: 1, y: 0.5 }}
                 >
 
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15 }} >
+                  <LinearGradient
+                    colors={['#ea9fdb', '#7d86f8']}
+                    style={{
+                      width: '100%',
+                      alignItems: 'center',
+                      padding: 15,
+                      borderTopLeftRadius: 20,
+                      borderTopRightRadius: 20
+                    }}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                  >
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#FFF' }}>
                       Post New Work
                       </Text>
-                    <TouchableOpacity
-                      onPress={this.togglepostprojectdetailmodal}
-                    >
-                      <FontAwesome
-                        name='arrow-circle-right'
-                        size={30}
-                        color='#15223D'
-                      />
-                    </TouchableOpacity>
-                  </View>
+
+                  </LinearGradient>
                   {this.state.postingprojectloading ? <View style={{
                     flex: 1,
                     backgroundColor: '#FFF',
-                    padding: 15,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
+                    borderBottomLeftRadius: 20,
+                    borderBottomRightRadius: 20,
+
                     alignItems: 'center',
                     justifyContent: 'center'
                   }} >
@@ -350,8 +365,8 @@ export default class HomeSreen extends Component {
                         flex: 1,
                         backgroundColor: '#FFF',
                         padding: 15,
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
+                        borderBottomLeftRadius: 20,
+                        borderBottomRightRadius: 20
 
                       }}
                       showsVerticalScrollIndicator={false}>
@@ -429,6 +444,7 @@ export default class HomeSreen extends Component {
                           />
                           <TextInput
                             placeholder="Enter the price in (RS)"
+                            keyboardType='numeric'
                             style={styles.textInput}
                             autoCapitalize="none"
                             onChangeText={this.inputbudget}
@@ -545,25 +561,40 @@ export default class HomeSreen extends Component {
                         </View>
                       </Animatable.View>
 
-                      <TouchableOpacity
-                        style={{
-                          padding: 10,
-                          borderRadius: 20,
-                          backgroundColor: '#f84382',
-                          width: '40%',
-                          alignItems: 'center',
-                          marginLeft: '30%',
-                          marginTop: 10,
-                          marginBottom: 20
-                        }}
-                        onPress={this.postproject}
-                      >
-                        <Text style={{ color: "#FFF", fontWeight: "bold" }}>Post</Text>
-                      </TouchableOpacity>
+
 
                     </ScrollView>}
+                  <LinearGradient
+                    colors={['#ea9fdb', '#7d86f8']}
+                    style={{
+                      marginTop: 10,
+                      borderRadius: 50,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      width: '80%',
+                      marginLeft: '10%',
+                      marginBottom: 10
+                    }}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                  >
+                    <TouchableOpacity
+                      style={[styles.button, { backgroundColor: '#FFF' }]}
+                      onPress={this.togglepostprojectdetailmodal}
+                    >
+                      <Text style={{ color: '#7d86f8', fontSize: 15 }}>Close</Text>
+                    </TouchableOpacity>
 
-                </LinearGradient>
+
+
+                    <TouchableOpacity
+                      style={[styles.button]}
+                      onPress={this.postproject}
+                    >
+                      <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 15 }}>Post</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
+                </View>
               </Modal>
 
 
@@ -688,6 +719,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f84382'
   },
   postprojectmodal: {
+    marginTop: '15%',
     flex: 1
 
   },
@@ -708,5 +740,12 @@ const styles = StyleSheet.create({
   text_footer: {
     marginTop: 5,
     color: '#15223D'
+  },
+  button: {
+    width: '50%',
+    padding: 15,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 });

@@ -12,7 +12,7 @@ import {
   TextInput,
   ActivityIndicator
 } from 'react-native';
-import { AirbnbRating } from 'react-native-ratings';
+
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import firestore from "@react-native-firebase/firestore";
 import auth from '@react-native-firebase/auth';
@@ -26,10 +26,164 @@ import LottieView from 'lottie-react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import MultiSelect from 'react-native-multiple-select';
-import { TouchableRipple } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Entypo';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
+
+const Profilesection1 = (props) => {
+  return <LinearGradient
+    colors={['#F8CDDA', '#1D2B64']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={{
+      marginTop: 15,
+      marginLeft: '2.5%',
+      width: '95%',
+      borderRadius: 20,
+      padding: 15,
+      justifyContent: 'space-evenly',
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 7,
+      },
+      shadowOpacity: 0.41,
+      shadowRadius: 9.11,
+
+      elevation: 14,
+    }}
+  >
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+      <Image
+        source={require('../assets/profile.png')}
+        style={{
+          height: 100,
+          width: 100,
+          borderRadius: 50
+        }}
+      />
+      <View>
+        <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#FFF' }}>{props.name}</Text>
+        <Text style={{ fontSize: 12, color: '#FFF' }}>{props.gmail}</Text>
+      </View>
+    </View>
+    <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+      <View style={{
+        backgroundColor: '#FFF',
+        padding: 10,
+        borderRadius: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+
+      }}>
+        <Image
+          source={require('../assets/star.png')}
+          style={{ height: 50, width: 50 }}
+        />
+        <View style={{ marginLeft: 5, alignItems: 'center' }}>
+          <Text style={{ color: '#07b99d', fontSize: 12 }}>{props.rating}</Text>
+          <Text style={{ color: '#07b99d', fontSize: 12 }}>Rating</Text>
+        </View>
+      </View>
+      <View style={{
+        backgroundColor: '#FFF',
+        padding: 10,
+        borderRadius: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly'
+      }}>
+        <Image
+          source={require('../assets/review.png')}
+          style={{ height: 45, width: 45 }}
+        />
+        <View style={{ marginLeft: 5, alignItems: 'center' }}>
+          <Text style={{ color: '#ffdc00', fontSize: 12 }}>{props.ratingcount}</Text>
+          <Text style={{ color: '#fd6000', fontSize: 12 }}>reviews</Text>
+        </View>
+      </View>
+
+    </View>
+    <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
+      <Text style={{ color: '#F0F2F0', fontSize: 12 }}>
+        {props.description}
+      </Text>
+    </View>
+  </LinearGradient>
+}
+
+const Profilesection3 = (props) => {
+  return <LinearGradient
+    colors={['#fbc7d4', '#9796f0']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={{
+      marginLeft: '2.5%',
+      width: '95%',
+      borderRadius: 20,
+      padding: 15,
+      marginTop: 20,
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 7,
+      },
+      shadowOpacity: 0.41,
+      shadowRadius: 9.11,
+
+      elevation: 14,
+    }}
+  >
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', width: '100%' }}>
+      <Image
+        source={require('../assets/contact-book.png')}
+        style={{ height: 45, width: 45 }}
+      />
+      <Text style={{ color: '#FFF', fontSize: 20, fontWeight: 'bold' }}>Contact Information</Text>
+    </View>
+    <View style={{ marginTop: 25, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', width: '100%' }}>
+      <Image
+        source={require('../assets/phone-call.png')}
+        style={{ height: 30, width: 30 }}
+      />
+      <Text style={{ color: '#FFF', fontSize: 15, fontWeight: 'bold' }}>+91{props.phone}</Text>
+    </View>
+    <View style={{ marginTop: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', width: '100%' }}>
+      <Image
+        source={require('../assets/message.png')}
+        style={{ height: 30, width: 30 }}
+      />
+      <Text style={{ color: '#FFF', fontSize: 15, fontWeight: 'bold' }}>{props.gmail}</Text>
+    </View>
+  </LinearGradient>
+}
+
+const HeaderComponent = (props) => {
+  return (
+    <LinearGradient
+      colors={props.color}
+      style={{
+        height: 100,
+        width: '100%',
+        justifyContent: 'center',
+        padding: 20,
+        borderBottomLeftRadius: 30
+
+      }}
+      start={{ x: 0.7, y: 0 }}
+    >
+      <Text style={{
+        color: '#FFF'
+      }}>{props.data}</Text>
+    </LinearGradient>
+
+  );
+}
+
 
 export default class ProfileScreen extends Component {
 
@@ -41,9 +195,11 @@ export default class ProfileScreen extends Component {
       isModalVisiblereview: false,
       ismyprojectmodalvisible: false,
       projectdetailmodal: false,
+      name: '',
       rating: 0.0,
       ratingcount: 0.0,
       reviews: [],
+      phone: '',
       cnameuid: [],
       myprojects: [],
       projectdetail: {},
@@ -90,6 +246,8 @@ export default class ProfileScreen extends Component {
             .ref('/users/' + auth().currentUser.email.slice(0, -4))
             .on('value', snapshot => {
               this.setState({
+                phone: snapshot.val()['phoneno'],
+                name: snapshot.val()['name'],
                 rating: snapshot.val()['rating'],
                 cnameuid: snapshot.val()['myprojects'],
                 ratingcount: snapshot.val()['ratingcount']
@@ -285,7 +443,11 @@ export default class ProfileScreen extends Component {
     setTimeout(() => this.setState({ postingtick: false }), 4000)
 
   }
-
+  
+  datetimecalc = (itemdate) => {
+    let today = (new Date()).getTime();
+    return Math.round((today - itemdate)/(1000*3600*24) );
+  }
   render() {
     const user = auth().currentUser
     const { selectedItems } = this.state;
@@ -298,44 +460,140 @@ export default class ProfileScreen extends Component {
             useNativeDriver={true}
             style={styles.container}
           >
-            <ImageBackground
-              source={require('../assets/HomeBKND.png')}
-              resizeMode='stretch'
-              style={styles.image2}
-              imageStyle={styles.image2_imageStyle}
-            >
-              <Animatable.View
-                animation='flipInX'
-                duration={1000}
-                useNativeDriver={true}
-                style={styles.linearGradient}
+            <View style={styles.topview}>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
               >
-                <FontAwesome
-                  name="user-circle-o"
+                <MaterialCommunityIcons
+                  name='arrow-left'
+                  size={25}
                   color='#15223D'
-                  size={75}
                 />
-                <View style={styles.profiledetails}>
-                  <Text style={{
-                    fontWeight: 'bold',
-                    color: '#15223D'
-                  }}>{user.email}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <AirbnbRating
-                      count={5}
-                      reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
-                      defaultRating={this.state.rating}
-                      size={20}
-                      isDisabled={true}
-                      reviewSize={0}
-                    />
-                    <Text style={{ color: '#F4B400' }}>{this.state.rating}/5</Text>
-                  </View>
-                  {this.state.ratingcount == 0 ? <Text style={{ marginTop: 10, color: '#CCC' }}>No reviews</Text> :
-                    <Text style={{ marginTop: 10, color: '#0F9D58' }}>({this.state.ratingcount}) reviews</Text>}
+              </TouchableOpacity>
+              <Text style={{
+                fontSize: 18,
+                color: '#7d86f8',
+                fontWeight: 'bold',
+              }}>Profile Detail</Text>
+              <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/profile.png')} />
+            </View>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+            >
+
+              <Profilesection1
+                name={this.state.name}
+                rating={this.state.rating}
+                reviews={this.state.ratingcount}
+                gmail={auth().currentUser.email}
+                description={'The definition of a description is a statement that gives details about someone or something. An example of description is a story about the places visited on a family trip. noun.'}
+              />
+              <Profilesection3
+                phone={this.state.phone}
+                gmail={auth().currentUser.email}
+              />
+
+              <LinearGradient
+                colors={['#FFF', '#FFF']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  marginTop: 15,
+                  marginLeft: '2.5%',
+                  width: '95%',
+                  borderRadius: 20,
+                  padding: 15,
+                  justifyContent: 'space-evenly',
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 7,
+                  },
+                  shadowOpacity: 0.41,
+                  shadowRadius: 9.11,
+
+                  elevation: 14,
+                  marginBottom: '25%'
+                }}
+              >
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',marginBottom:10}}>
+                  <Image
+                    source={require('../assets/icons8-consultation-100.png')}
+                    style={{ height: 40, width: 40 }}
+                  />
+                  <Text style={{ color: '#01579b', marginLeft: 10, fontSize: 20 }} >Other settings</Text>
+
                 </View>
-              </Animatable.View>
-            </ImageBackground>
+                <Animatable.View
+                  animation='fadeInRight'
+                  duration={1000}
+                  useNativeDriver={true}
+                >
+                  <TouchableOpacity
+                    onPress={this.toggleModalskill}
+                    style={styles.about}
+                  >
+                    <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/001-experience.png')} />
+                    <Text style={styles.abouttxt}>
+                      Skills
+                  </Text>
+                  </TouchableOpacity>
+                </Animatable.View>
+                <Animatable.View
+                  animation='fadeInRight'
+                  duration={1100}
+                  useNativeDriver={true}
+                >
+                  <TouchableOpacity
+                    onPress={this.toggleModalreview}
+                    style={styles.about}
+                  >
+                    <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/review.png')} />
+
+                    <Text style={styles.abouttxt}>
+                      Reviews
+                  </Text>
+                  </TouchableOpacity>
+                </Animatable.View>
+                <Animatable.View
+                  animation='fadeInRight'
+                  duration={1100}
+                  useNativeDriver={true}
+                >
+                  <TouchableOpacity
+                    onPress={this.togglemodalmyproject}
+                    style={styles.about}
+                  >
+                    <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/resume.png')} />
+                    <Text style={styles.abouttxt}>
+                      MyProjects
+                  </Text>
+                  </TouchableOpacity>
+                </Animatable.View>
+                <Animatable.View
+                  animation='fadeInRight'
+                  duration={1200}
+                  useNativeDriver={true}
+                >
+                  <TouchableOpacity
+                    onPress={this.signout}
+                    style={[styles.about, { borderColor: '#FFF' }]}
+                  >
+                    <AntDesign
+                      name="logout"
+                      color='#DB4437'
+                      size={25}
+                    />
+                    <Text style={styles.abouttxt}>
+                      LogOut
+                  </Text>
+                  </TouchableOpacity>
+                </Animatable.View>
+              </LinearGradient>
+
+            </ScrollView>
+
+
 
             {/***************************************Skill Modal***********************************************/}
 
@@ -347,40 +605,32 @@ export default class ProfileScreen extends Component {
               useNativeDriver={true}
               style={{ margin: 0 }}
             >
-              <View style={{ flex: 1, backgroundColor: '#5a94fc' }}>
-                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', padding: 20 }}>
-                  <Text style={styles.header} >My Skills</Text>
-                  <TouchableOpacity onPress={this.toggleModalskill}>
-                    <FontAwesome
-                      name='arrow-circle-right'
-                      color='#FFF'
-                      size={30}
+              <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+                <View style={styles.topview}>
+                  <TouchableOpacity
+                    onPress={() => this.toggleModalskill()}
+                  >
+                    <MaterialCommunityIcons
+                      name='arrow-left'
+                      size={25}
+                      color='#15223D'
                     />
                   </TouchableOpacity>
+                  <Text style={{
+                    fontSize: 18,
+                    color: '#7d86f8',
+                    fontWeight: 'bold',
+                  }}>My Skills</Text>
+                  <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/001-experience.png')} />
                 </View>
+
                 <Animatable.View
                   animation='bounceInUp'
                   duration={1500}
                   useNativeDriver={true}
-                  style={[styles.list, { padding: 15 }]}
+                  style={[styles.list, { padding: 15, marginTop: 20 }]}
                 >
                   <ScrollView>
-                    {/* 
-                    {this.state.selectedItems.map((item, key) => (
-                      <View style={{
-                        width: '100%',
-                        borderBottomColor: '#ff7aa2',
-                        borderBottomWidth: 0.5,
-                        borderRadius: 20,
-                        padding: 10,
-
-                      }}>
-                        <Text key={key} style={{ marginLeft: 10, fontWeight: 'bold' }}> {item} </Text>
-                      </View>
-
-                    )
-                    )} */}
-
                     <View style={{ flex: 1, marginTop: 10 }}>
                       <Text style={[styles.text_footer, {
                         marginTop: 10,
@@ -410,24 +660,24 @@ export default class ProfileScreen extends Component {
                       />
                     </View>
                   </ScrollView>
-                  
 
-                    <TouchableOpacity
-                      style={{
-                        padding: 10,
-                        borderColor:'#5a94fc',
-                        borderWidth:1,
-                        borderRadius:20,
-                        width:'40%',
-                        marginLeft:'30%',
-                        alignItems:'center'
-                      }}
-                      onPress={() => this.onsaveskills()}
-                    >
+
+                  <TouchableOpacity
+                    style={{
+                      padding: 10,
+                      borderColor: '#5a94fc',
+                      borderWidth: 1,
+                      borderRadius: 20,
+                      width: '40%',
+                      marginLeft: '30%',
+                      alignItems: 'center'
+                    }}
+                    onPress={() => this.onsaveskills()}
+                  >
                     {this.state.updatingskill ? <ActivityIndicator size='small' color='#5a94fc' /> :
-                      <Text style={{color:'#5a94fc',fontWeight:'bold'}} >Save</Text>  }
-                    </TouchableOpacity>
-                
+                      <Text style={{ color: '#5a94fc', fontWeight: 'bold' }} >Save</Text>}
+                  </TouchableOpacity>
+
                 </Animatable.View>
 
 
@@ -443,16 +693,23 @@ export default class ProfileScreen extends Component {
               useNativeDriver={true}
               style={{ margin: 0 }}
             >
-              <View style={{ flex: 1, backgroundColor: '#ff7aa2' }}>
-                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', padding: 20 }}>
-                  <Text style={styles.header} >My Reviews</Text>
-                  <TouchableOpacity onPress={this.toggleModalreview}>
-                    <FontAwesome
-                      name='arrow-circle-right'
-                      color='#FFF'
-                      size={30}
+              <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+                <View style={styles.topview}>
+                  <TouchableOpacity
+                    onPress={() => this.toggleModalreview()}
+                  >
+                    <MaterialCommunityIcons
+                      name='arrow-left'
+                      size={25}
+                      color='#15223D'
                     />
                   </TouchableOpacity>
+                  <Text style={{
+                    fontSize: 18,
+                    color: '#7d86f8',
+                    fontWeight: 'bold',
+                  }}>My Reviews</Text>
+                  <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/review.png')} />
                 </View>
 
                 {this.state.reviews.length === 0 ?
@@ -506,18 +763,25 @@ export default class ProfileScreen extends Component {
             >
 
               <View style={{
-                flex: 1, backgroundColor: '#7133D1'
+                flex: 1, backgroundColor: '#FFF'
               }}>
 
-                <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', padding: 20 }}>
-                  <Text style={styles.header} >Myproject</Text>
-                  <TouchableOpacity onPress={this.togglemodalmyproject}>
-                    <FontAwesome
-                      name='arrow-circle-right'
-                      color='#FFF'
-                      size={30}
+                <View style={styles.topview}>
+                  <TouchableOpacity
+                    onPress={() => this.togglemodalmyproject()}
+                  >
+                    <MaterialCommunityIcons
+                      name='arrow-left'
+                      size={25}
+                      color='#15223D'
                     />
                   </TouchableOpacity>
+                  <Text style={{
+                    fontSize: 18,
+                    color: '#7d86f8',
+                    fontWeight: 'bold',
+                  }}>My Projects</Text>
+                  <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/resume.png')} />
                 </View>
                 {this.state.myprojects.length === 0 ?
                   <Animatable.View
@@ -545,53 +809,65 @@ export default class ProfileScreen extends Component {
                       keyExtractor={item => item.Uid.toString()}
                       renderItem={({ item }) => (
                         <Animatable.View
-                          animation='bounceInUp'
-                          duration={700}
-                          style={styles.projectView}
+                    animation='bounceInUp'
+                    duration={600}
+                    style={styles.projectView}
+                  >
+                    <ImageBackground
+                      source={require('../assets/prbkcg.png')}
+                      resizeMode='stretch'
+                      style={{ flex: 1, padding: 10 }}
+                      imageStyle={{ borderRadius: 20, height: '80%' }}
+                    >
+                      <View style={{
+                        flexDirection: 'row',
+                        padding: 5,
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }} >
+                        <Image style={styles.icon} source={{ uri: item.IconUrl }} />
+                        <View>
+                          <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title.slice(0, 15)}...</Text>
+                          <View style={{
+                            flexDirection: 'row', alignItems: 'center', marginTop: 5
+                          }}>
+                            <Icon
+                              name='location'
+                              size={15}
+                              color='#ff498a'
+                            />
+                            <Text style={{ color: '#cddbf9', marginLeft: 5 }} >{item.Location.slice(0, 10)}...</Text>
+                          </View>
+                        </View>
+                        <View style={{ padding: 5, backgroundColor: '#7d86f8', borderRadius: 10 }}>
+                          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 13 }}>{item.Budget}Rs</Text>
+                        </View>
+                      </View>
+                      <View style={{ width: '100%', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row' }}>
+                        {this.datetimecalc(item.Date) == 0 ?
+                          <Text style={{ marginLeft: 15, color: '#35307d', fontWeight: 'bold', fontSize: 12 }}>Today</Text> :
+                          <Text style={{ marginLeft: 10, color: '#35307d', fontWeight: 'bold', fontSize: 12 }}>{this.datetimecalc(item.Date)} Day-ago</Text>}
+                        <LinearGradient
+                          colors={['#ffb198', '#ff8892', '#ff498a']}
+                          style={{
+                            borderRadius: 15,
+                            width: '30%',
+
+                          }}
+                          start={{ x: 0, y: 0.5 }}
+                          end={{ x: 1, y: 0.5 }}
                         >
-                          <ImageBackground
-                            source={require('../assets/prbkcg.png')}
-                            resizeMode='stretch'
-                            style={{ flex: 1, padding: 10 }}
-                            imageStyle={{ borderRadius: 20, height: '80%' }}
+                          <TouchableOpacity
+                            style={{ width: '100%', padding: 10, borderRadius: 15, alignItems: 'center' }}
+                            onPress={() => this.getmyprojectsdetail(item)}
                           >
-                            <View style={{
-                              flexDirection: 'row',
-                              padding: 5,
-                              alignItems: 'center',
-                            }} >
-                              <Image style={styles.icon} source={{ uri: item.IconUrl }} />
-                              <View style={{ marginLeft: 10, width: '65%' }}>
-                                <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
-                                <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
-                              </View>
-                            </View>
-                            <View style={{
-                              flexDirection: 'row',
-                              padding: 5,
-                              alignItems: 'center',
-                              justifyContent: 'space-evenly',
-                              marginTop: 10
-                            }}>
-                              <TouchableOpacity
-                                style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                                onPress={() => this.getmyprojectsdetail(item)}
-                              >
-                                <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
-                              </TouchableOpacity>
+                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
+                          </TouchableOpacity>
+                        </LinearGradient>
+                      </View>
 
-
-
-                              <TouchableOpacity
-                                style={[styles.button, { backgroundColor: '#74c69d' }]}
-                                onPress={() => this.editmyproject(item)}
-                              >
-                                <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
-                              </TouchableOpacity>
-                            </View>
-
-                          </ImageBackground>
-                        </Animatable.View>
+                    </ImageBackground>
+                  </Animatable.View>
                       )}
                     />
                   </Animatable.View>}
@@ -608,61 +884,82 @@ export default class ProfileScreen extends Component {
               useNativeDriver={true}
               style={{ margin: 0 }}
             >
-              <View style={styles.modal}>
-                <ImageBackground
-                  source={require('../assets/WorkDetails.png')}
-                  resizeMode='stretch'
-                  style={{}}
-                  imageStyle={{
-                    width: '95%',
-                    height: 35,
-                  }}
+              <View style={{flex:1,backgroundColor:'#FFF'}}>
+              <View style={styles.topview}>
+                <TouchableOpacity
+                  onPress={this.togglemodalmyprojectdetailmodal}
                 >
-
-                  <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end' }} onPress={this.togglemodalmyprojectdetailmodal}>
-                    <FontAwesome
-                      name='arrow-circle-right'
-                      size={30}
-                    />
-                  </TouchableOpacity>
-                </ImageBackground>
+                  <MaterialCommunityIcons
+                    name='arrow-left'
+                    size={25}
+                    color='#15223D'
+                  />
+                </TouchableOpacity>
+                <Text style={styles.header}>Work Details</Text>
+                <Image style={{ height: 30, width: 30, borderRadius: 15 }}  source={require('../assets/legal.png')} />
+              </View>
                 <ScrollView
                   showsVerticalScrollIndicator={false}
                 >
-                  <View style={{ alignItems: 'center', padding: 10, borderColor: '#ff7aa2', borderBottomWidth: 0.5, borderRadius: 30, marginTop: 20 }}>
-                    <Image source={{ uri: this.state.projectdetail['IconUrl'] }} style={styles.icon} />
+                <View style={{ alignItems: 'center', padding: 10, borderColor: '#ff7aa2', borderBottomWidth: 0.5, borderRadius: 30, marginTop: 20 }}>
+                    <Image  source={{ uri: this.state.projectdetail['IconUrl'] }} style={styles.icon} />
                   </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Title  :   </Text>
-                    <Text style={{ width: '60%', color: '#15223D' }}>{this.state.projectdetail['Title']}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row' }]} >
-                    <Text style={styles.title}>Budget  :  </Text>
-                    <Text style={{ color: '#3cba54' }}>{this.state.projectdetail['Budget']}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row' }]} >
-                    <Text style={styles.title}>Location  :  </Text>
-                    <Text style={{ color: '#15223D' }}>{this.state.projectdetail['Location']}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row' }]} >
-                    <Text style={styles.title}>Prefrences  :  </Text>
-                    <Text style={{ color: '#15223D' }}>{this.state.projectdetail['Prefrences']}</Text>
-                  </View>
-                  <View style={[styles.section]}>
-                    <Text style={styles.title}>Description  :</Text>
-                    <Text style={{ marginTop: 5, color: '#15223D' }}>{this.state.projectdetail['Description']}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Uid  :</Text>
-                    <Text style={{ marginTop: 5, marginLeft: 10, color: '#CCC' }}>{this.state.projectdetail['Uid']}</Text>
-                  </View>
-
+                  <View style={styles.section}>
+                      <Image
+                        source={require('../assets/002-title.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Title   :  </Text>
+                      <Text style={{ color: '#a0caeb', marginLeft: 10 }}>{this.state.projectdetail['Title']}</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/003-money-bag.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Budget   :  </Text>
+                      <Text style={{ color: '#fc9454', marginLeft: 10, fontWeight: 'bold' }}>{this.state.projectdetail['Budget']}Rs</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/001-google-maps.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Location   :  </Text>
+                      <Text style={{ color: '#ffda2d', marginLeft: 10, fontWeight: 'bold' }}>{this.state.projectdetail['Location']}</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/001-experience.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Prefrences   :  </Text>
+                      <Text style={{ color: '#a09eef', marginLeft: 10, fontWeight: 'bold' }}>{this.state.projectdetail['Prefrences']}</Text>
+                    </View>
+                    <View style={[styles.section, { flexDirection: 'column' }]}>
+                      <View style={{flexDirection:'row',justifyContent:'flex-start'}}>
+                        <Image
+                          source={require('../assets/004-floppy-disk.png')}
+                          style={{ height: 20, width: 20 }}
+                        />
+                        <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Description  : </Text>
+                      </View>    
+                        <Text style={{ color: '#7f95b8',marginTop:10 ,marginLeft: 10}}>{this.state.projectdetail['Description']}</Text>
+                    </View>
+                  <View style={styles.section}>
+                      <Image
+                        source={require('../assets/004-id-1.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >ProjectId   :  </Text>
+                      <Text style={{ color: '#a0caeb', marginLeft: 10 }}>{this.state.projectdetail['Uid']}</Text>
+                    </View>
                 </ScrollView>
                 <TouchableOpacity
-                  style={[styles.button, { backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15 }]}
+                  style={[styles.button, { borderColor:'#74c69d',borderWidth:1, marginLeft: '30%', marginBottom: 10 }]}
                   onPress={() => this.editmyproject(this.state.projectdetail)}
                 >
-                  <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
+                  <Text style={{ color: '#74c69d', fontWeight: 'bold', fontSize: 15 }}>Edit</Text>
                 </TouchableOpacity>
               </View>
             </Modal>
@@ -693,26 +990,22 @@ export default class ProfileScreen extends Component {
                 <View style={{ flex: 1, backgroundColor: '#FFF' }}>
                   <LottieView source={require('../assets/writing.json')} autoPlay />
                 </View> :
-                <View style={styles.modal}>
-                  <ImageBackground
-                    source={require('../assets/PostNewWork.png')}
-                    resizeMode='stretch'
-                    style={{}}
-                    imageStyle={{ width: '95%', height: '100%' }}
-                  >
-
-                    <TouchableOpacity
-                      style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 10 }}
-                      onPress={this.toggleupdateprojectmodal}
-                    >
-                      <FontAwesome
-                        name='arrow-circle-right'
-                        size={30}
-                        color='#15223D'
-                      />
-                    </TouchableOpacity>
-                  </ImageBackground>
-                  <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{flex:1,backgroundColor:'#FFF'}}>
+                <View style={styles.topview}>
+                <TouchableOpacity
+                  onPress={this.toggleupdateprojectmodal}
+                >
+                  <MaterialCommunityIcons
+                    name='arrow-left'
+                    size={25}
+                    color='#15223D'
+                  />
+                </TouchableOpacity>
+                <Text style={styles.header}>Work Details</Text>
+                <Image style={{ height: 30, width: 30, borderRadius: 15 }}  source={require('../assets/legal.png')} />
+              </View>
+                  <ScrollView showsVerticalScrollIndicator={false}
+                  style={{padding:15}}>
                     <Text style={styles.text_footer}>Title</Text>
                     <View style={styles.action}>
                       <MaterialCommunityIcons
@@ -838,18 +1131,10 @@ export default class ProfileScreen extends Component {
                         : null}
                     </View>
                     <TouchableOpacity
-                      style={{
-                        padding: 10,
-                        borderRadius: 20,
-                        backgroundColor: '#f84382',
-                        width: '40%',
-                        alignItems: 'center',
-                        marginLeft: '30%',
-                        marginTop: 10
-                      }}
+                      style={[styles.button,{borderColor:'#f84382',borderWidth:1, marginLeft: '30%', marginBottom: 10}]}
                       onPress={this.postupdateprojectdetail}
                     >
-                      <Text style={{ color: "#FFF", fontWeight: "bold" }}>Update</Text>
+                      <Text style={{ color: "#f84382", fontWeight: "bold" }}>Update</Text>
                     </TouchableOpacity>
                   </ScrollView>
 
@@ -857,84 +1142,7 @@ export default class ProfileScreen extends Component {
             </Modal>
 
 
-            <View style={styles.bottom}>
-              <Animatable.View
-                animation='fadeInRight'
-                duration={1000}
-                useNativeDriver={true}
-              >
-                <TouchableOpacity
-                  onPress={this.toggleModalskill}
-                  style={styles.about}
-                >
-                  <FontAwesome5
-                    name="users-cog"
-                    color='#5a94fc'
-                    size={25}
-                  />
-                  <Text style={styles.abouttxt}>
-                    Skills
-                  </Text>
-                </TouchableOpacity>
-              </Animatable.View>
-              <Animatable.View
-                animation='fadeInRight'
-                duration={1100}
-                useNativeDriver={true}
-              >
-                <TouchableOpacity
-                  onPress={this.toggleModalreview}
-                  style={styles.about}
-                >
-                  <MaterialIcons
-                    name="rate-review"
-                    color='#ff7aa2'
-                    size={25}
-                  />
-                  <Text style={styles.abouttxt}>
-                    Reviews
-                  </Text>
-                </TouchableOpacity>
-              </Animatable.View>
-              <Animatable.View
-                animation='fadeInRight'
-                duration={1100}
-                useNativeDriver={true}
-              >
-                <TouchableOpacity
-                  onPress={this.togglemodalmyproject}
-                  style={styles.about}
-                >
-                  <MaterialIcons
-                    name="collections"
-                    color='#7133D1'
-                    size={25}
-                  />
-                  <Text style={styles.abouttxt}>
-                    MyProjects
-                  </Text>
-                </TouchableOpacity>
-              </Animatable.View>
-              <Animatable.View
-                animation='fadeInRight'
-                duration={1200}
-                useNativeDriver={true}
-              >
-                <TouchableOpacity
-                  onPress={this.signout}
-                  style={styles.about}
-                >
-                  <AntDesign
-                    name="logout"
-                    color='#DB4437'
-                    size={25}
-                  />
-                  <Text style={styles.abouttxt}>
-                    LogOut
-                  </Text>
-                </TouchableOpacity>
-              </Animatable.View>
-            </View>
+
           </Animatable.View>
         )
       default:
@@ -953,13 +1161,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
     borderTopLeftRadius: 20,
-    borderTopRightRadius: 20
+    borderTopRightRadius: 20,
+    marginTop: 20
+  },
+  topview: {
+    backgroundColor: '#FFF',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomLeftRadius: 50,
+    padding: 15,
+    flexDirection: 'row',
+    shadowColor: "rgb(125, 134, 248)",
+    shadowOffset: {
+      height: 20,
+      width: 20
+    },
+    elevation: 5,
+    shadowOpacity: 1,
+    shadowRadius: 0,
   },
   header: {
-    fontSize: 20,
-    color: '#FFF',
+    fontSize: 18,
+    color: '#7d86f8',
     fontWeight: 'bold',
-
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#7d86f8'
   },
   image2: {
     height: '40%',
@@ -977,35 +1207,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    width: '95%',
-    height: '50%',
-    marginTop: '25%',
-    borderRadius: 20,
-    shadowColor: "rgba(0,0,0,1)",
-    shadowOffset: {
-      height: 20,
-      width: 20
-    },
-    elevation: 5,
-    shadowOpacity: 0.5,
-    shadowRadius: 0,
+    borderTopLeftRadius: 50,
+    borderWidth: 1,
     padding: 10,
   },
   bottom: {
-    flex: 1,
-    padding: 5,
-    backgroundColor: '#FFF',
+    width: '50%',
+    padding: 15,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   about: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 20,
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
-
   },
   abouttxt: {
     marginLeft: 15,
@@ -1021,8 +1241,8 @@ const styles = StyleSheet.create({
   projectView: {
     marginTop: 10,
     marginBottom: 10,
-    marginLeft: '5%',
-    width: '90%',
+    marginLeft: '2.5%',
+    width: '95%',
     shadowColor: "rgb(125, 134, 248)",
     shadowOffset: {
       height: 20,
@@ -1033,8 +1253,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 0,
     backgroundColor: '#fFf',
-    borderBottomLeftRadius: 35,
-    borderBottomRightRadius: 35
+    borderRadius: 20
   },
   button: {
     width: '40%',
@@ -1045,13 +1264,14 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 15,
-    borderBottomColor: '#ff7aa2',
+    borderBottomColor: '#dbecf7',
     borderBottomWidth: 0.5,
+    flexDirection: 'row'
   },
   icon: {
-    height: 100,
-    width: 100,
-    borderRadius: 50,
+    height: 70,
+    width: 70,
+    borderRadius: 20,
   },
   action: {
     flexDirection: 'row',

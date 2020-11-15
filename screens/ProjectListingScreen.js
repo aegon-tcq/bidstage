@@ -22,7 +22,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { BubblesLoader } from 'react-native-indicator';
 import auth from '@react-native-firebase/auth';
 import LottieView from 'lottie-react-native';
 import HeaderComponent from '../Components/HeaderComponent.js';
@@ -31,6 +30,8 @@ import LinearGradient from 'react-native-linear-gradient';
 const { width, height } = Dimensions.get('window');
 const projectRef = firestore().collection('ProjectDetails').doc('Categories');
 let onEndReachedCalledDuringMomentum = false;
+
+
 
 
 export default class ProjectListingScreen extends Component {
@@ -266,10 +267,17 @@ export default class ProjectListingScreen extends Component {
     }
 
   }
+
+  datetimecalc = (itemdate) => {
+    let today = (new Date()).getTime();
+    return Math.round((today - itemdate)/(1000*3600*24) );
+  }
+
   render() {
     switch (this.state.isLoading) {
       case false:
         return (
+
           <View style={{ height: '90%' }}>
             <StatusBar barStyle="dark-content" hidden={false} backgroundColor="#FFF" translucent={false} />
 
@@ -297,75 +305,118 @@ export default class ProjectListingScreen extends Component {
 
             <Modal
               isVisible={this.state.modalVisible}
-              animationIn={"zoomInDown"}
-              animationOut={"zoomOutUp"}
+              animationIn={"bounceInUp"}
+              animationOut={"bounceOutDown"}
               useNativeDriver={true}
-              style={{ alignItems: 'center' }}
+              style={{ margin: 0 }}
             >
               <View style={styles.modal}>
-                <ImageBackground
-                  source={require('../assets/WorkDetails.png')}
-                  resizeMode='stretch'
-                  style={styles.image2}
-                  imageStyle={styles.image2_imageStyle}
-                >
+              <View style={styles.section}>
+                      <Image
+                        source={require('../assets/legal.png')}
+                        style={{ height: 40, width: 40 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10, fontSize: 20 }} >Work Details</Text>
 
-                  <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }} onPress={this.toggleModal}>
-                    <Icon
-                      name='circle-with-cross'
-                      size={22}
-                    />
-                  </TouchableOpacity>
-                </ImageBackground>
+                    </View>
                 <ScrollView
                   showsVerticalScrollIndicator={false}
                 >
                   <View style={{ alignItems: 'center', padding: 10, borderColor: '#ff7aa2', borderBottomWidth: 0.5, borderRadius: 30, marginTop: 20 }}>
                     <Image source={{ uri: this.state.iconUrl }} style={styles.icon} />
                   </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Title  :   </Text>
-                    <Text style={{ width: '60%', color: '#15223D' }}>{this.state.title}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row' }]} >
-                    <Text style={styles.title}>Budget  :  </Text>
-                    <Text style={{ color: '#3cba54' }}>{this.state.budget}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row' }]} >
-                    <Text style={styles.title}>Location  :  </Text>
-                    <Text style={{ color: '#15223D' }}>{this.state.location}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row' }]} >
-                    <Text style={styles.title}>Prefrences  :  </Text>
-                    <Text style={{ color: '#15223D' }}>{this.state.prefrences}</Text>
-                  </View>
-                  <View style={[styles.section]}>
-                    <Text style={styles.title}>Description  :</Text>
-                    <Text style={{ marginTop: 5, color: '#15223D' }}>{this.state.description}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row' }]}>
-                    <Text style={styles.title}>Uid  :</Text>
-                    <Text style={{ marginTop: 5, color: '#CCC' }}>{this.state.uid}</Text>
-                  </View>
+                  <View style={styles.section}>
+                      <Image
+                        source={require('../assets/002-title.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Title   :  </Text>
+                      <Text style={{ color: '#a0caeb', marginLeft: 10 }}>{this.state.title}</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/003-money-bag.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Budget   :  </Text>
+                      <Text style={{ color: '#fc9454', marginLeft: 10, fontWeight: 'bold' }}>{this.state.budget}Rs</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/001-google-maps.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Location   :  </Text>
+                      <Text style={{ color: '#ffda2d', marginLeft: 10, fontWeight: 'bold' }}>{this.state.location}</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/001-experience.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Prefrences   :  </Text>
+                      <Text style={{ color: '#a09eef', marginLeft: 10, fontWeight: 'bold' }}>{this.state.prefrences}</Text>
+                    </View>
+                    <View style={[styles.section, { flexDirection: 'column' }]}>
+                      <View style={{flexDirection:'row',justifyContent:'flex-start'}}>
+                        <Image
+                          source={require('../assets/004-floppy-disk.png')}
+                          style={{ height: 20, width: 20 }}
+                        />
+                        <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Description  : </Text>
+                      </View>    
+                        <Text style={{ color: '#7f95b8',marginTop:10 ,marginLeft: 10}}>{this.state.description}</Text>
+                    </View>
+                  <View style={styles.section}>
+                      <Image
+                        source={require('../assets/004-id-1.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >ProjectId   :  </Text>
+                      <Text style={{ color: '#a0caeb', marginLeft: 10 }}>{this.state.uid}</Text>
+                    </View>
 
                 </ScrollView>
+              </View>
+              <LinearGradient
+                colors={['#ea9fdb', '#7d86f8']}
+                style={{
+                  marginTop: 10,
+                  borderRadius: 50,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '80%',
+                  marginLeft: '10%',
+                  marginBottom: 10
+                }}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+              >
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: '#FFF' }]}
+                  onPress={this.toggleModal}
+                >
+                  <Text style={{ color: '#7d86f8', fontSize: 15 }}>Close</Text>
+                </TouchableOpacity>
+
+
                 {auth().currentUser.email == this.state.Ownerid ?
                   <TouchableOpacity
-                    style={[styles.button, { backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15, opacity: 0.4 }]}
+                    style={[styles.button, { opacity: 0.4 }]}
                     onPress={() => Alert.alert("Can't Bid!", 'this work is posted by you..', [
                       { text: 'Okay' }
                     ])}
                   >
-                    <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                    <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
                   </TouchableOpacity>
                   :
                   <TouchableOpacity
-                    style={[styles.button, { backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15 }]}
+                    style={[styles.button]}
                     onPress={() => this.setBidDetailModal(this.state.BUid, this.state.Bcategory, this.state.Ownerid)}
                   >
-                    <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                    <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
                   </TouchableOpacity>}
-              </View>
+              </LinearGradient>
             </Modal>
 
 
@@ -374,101 +425,106 @@ export default class ProjectListingScreen extends Component {
 
             <Modal
               isVisible={this.state.bidmodalVisible}
-              animationIn={"zoomInDown"}
-              animationOut={"zoomOutUp"}
+              animationIn={"bounceInUp"}
+              animationOut={"bounceOutDown"}
               useNativeDriver={true}
-              style={{ alignItems: 'center' }}
+              style={{ margin: 0 }}
             >
-              {this.state.placebidloading ?
-                <View style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }} >
-                  <BubblesLoader color='#7d86f8' />
-                </View>
-                : <View style={[styles.modal, { height: '70%' }]}>
-                  <ImageBackground
-                    source={require('../assets/SubmitBidForm.png')}
-                    resizeMode='stretch'
-                    style={styles.image2}
-                    imageStyle={styles.image2_imageStyle}
-                  >
+              <View style={[styles.modal]}>
+                <ImageBackground
+                  source={require('../assets/SubmitBidForm.png')}
+                  resizeMode='stretch'
+                  style={styles.image2}
+                  imageStyle={styles.image2_imageStyle}
+                >
 
-                    <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }} onPress={this.togglebidmodal}>
-                      <Icon
-                        name='circle-with-cross'
-                        size={22}
-                      />
-                    </TouchableOpacity>
-                  </ImageBackground>
-                  <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    style={{ padding: 15 }}
-                  >
-                    <Text style={[styles.inputtitle, { marginTop: 25 }]}>Your Rate</Text>
-                    <View style={styles.action}>
-                      <FontAwesome
-                        name="rupee"
-                        color="#05375a"
-                        size={20}
-                      />
-                      <TextInput
-                        placeholder="Rate in (INR)"
-                        style={styles.textInput}
-                        autoCapitalize="none"
-                        onChangeText={this.setbidbudget}
-                        onEndEditing={this.checkdetails}
-                      />
-                    </View>
-                    <Text style={{}}>Time Limit</Text>
-                    <View style={styles.action}>
-                      <MaterialCommunityIcons
-                        name="timer-outline"
-                        color="#05375a"
-                        size={20}
-                      />
-                      <TextInput
-                        placeholder="(month/days) to complete the work."
-                        style={styles.textInput}
-                        autoCapitalize="none"
-                        onChangeText={this.setdeadline}
-                        onEndEditing={this.checkdetails}
-                      />
-                    </View>
-                    <Text style={{}}>Describe your proposal</Text>
-                    <View style={styles.action}>
-                      <MaterialIcons
-                        name="description"
-                        color="#05375a"
-                        size={20}
-                      />
-                      <TextInput
-                        placeholder="What makes you the best candidate for this job."
-                        multiline={true}
-                        numberOfLines={2}
-                        style={styles.textInput}
-                        autoCapitalize="none"
-                        onChangeText={this.setbiddescription}
-                        onEndEditing={this.checkdetails}
-                      />
-                    </View>
-                    <TouchableOpacity
-                      style={{
-                        padding: 10,
-                        backgroundColor: '#FF3E89',
-                        borderRadius: 20,
-                        width: '40%',
-                        alignItems: 'center',
-                        marginTop: 20,
-                        marginLeft: '30%',
-                        marginBottom: 20
-                      }}
-                      onPress={this.submitbiddetail}>
-                      <Text style={{ fontWeight: 'bold', color: '#FFF' }}>PlaceBid</Text>
-                    </TouchableOpacity>
-                  </ScrollView>
-                </View>}
+                </ImageBackground>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={{ padding: 15 }}
+                >
+                  <Text style={[styles.inputtitle, { marginTop: 25 }]}>Your Rate</Text>
+                  <View style={styles.action}>
+                    <FontAwesome
+                      name="rupee"
+                      color="#05375a"
+                      size={20}
+                    />
+                    <TextInput
+                      placeholder="Rate in (INR)"
+                      style={styles.textInput}
+                      keyboardType='numeric'
+                      autoCapitalize="none"
+                      onChangeText={this.setbidbudget}
+                      onEndEditing={this.checkdetails}
+                    />
+                  </View>
+                  <Text style={{}}>Time Limit</Text>
+                  <View style={styles.action}>
+                    <MaterialCommunityIcons
+                      name="timer-outline"
+                      color="#05375a"
+                      size={20}
+                    />
+                    <TextInput
+                      placeholder="(month/days) to complete the work."
+                      style={styles.textInput}
+                      autoCapitalize="none"
+                      onChangeText={this.setdeadline}
+                      onEndEditing={this.checkdetails}
+                    />
+                  </View>
+                  <Text style={{}}>Describe your proposal</Text>
+                  <View style={styles.action}>
+                    <MaterialIcons
+                      name="description"
+                      color="#05375a"
+                      size={20}
+                    />
+                    <TextInput
+                      placeholder="What makes you the best candidate for this job."
+                      multiline={true}
+                      numberOfLines={2}
+                      style={styles.textInput}
+                      autoCapitalize="none"
+                      onChangeText={this.setbiddescription}
+                      onEndEditing={this.checkdetails}
+                    />
+                  </View>
+                </ScrollView>
+              </View>
+              <LinearGradient
+                colors={['#ffb198', '#ff8892', '#ff498a']}
+                style={{
+                  marginTop: 10,
+                  borderRadius: 50,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '80%',
+                  marginLeft: '10%',
+                  marginBottom: 10
+                }}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+              >
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: '#FFF' }]}
+                  onPress={this.togglebidmodal}
+                >
+                  <Text style={{ color: '#ff498a', fontSize: 15 }}>Close</Text>
+                </TouchableOpacity>
+
+
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={this.submitbiddetail}>
+                  {this.state.placebidloading ?
+                    <ActivityIndicator size='large' color='#FFF' />
+                    :
+                    <Text style={{ fontWeight: 'bold', color: '#FFF' }}>PlaceBid</Text>}
+                </TouchableOpacity>
+              </LinearGradient>
+
             </Modal>
 
 
@@ -500,44 +556,47 @@ export default class ProjectListingScreen extends Component {
                         flexDirection: 'row',
                         padding: 5,
                         alignItems: 'center',
+                        justifyContent: 'space-between'
                       }} >
                         <Image style={styles.icon} source={{ uri: item.IconUrl }} />
-                        <View style={{ marginLeft: 10, width: '65%' }}>
-                          <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title}</Text>
-                          <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Budget}</Text>
+                        <View>
+                          <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Title.slice(0, 15)}...</Text>
+                          <View style={{
+                            flexDirection: 'row', alignItems: 'center', marginTop: 5
+                          }}>
+                            <Icon
+                              name='location'
+                              size={15}
+                              color='#ff498a'
+                            />
+                            <Text style={{ color: '#cddbf9', marginLeft: 5 }} >{item.Location.slice(0, 10)}...</Text>
+                          </View>
+                        </View>
+                        <View style={{ padding: 5, backgroundColor: '#7d86f8', borderRadius: 10 }}>
+                          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 13 }}>{item.Budget}Rs</Text>
                         </View>
                       </View>
-                      <View style={{
-                        flexDirection: 'row',
-                        padding: 5,
-                        alignItems: 'center',
-                        justifyContent: 'space-evenly',
-                        marginTop: 10
-                      }}>
-                        <TouchableOpacity
-                          style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                          onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description, item.Uid, this.props.route.params.CategoryName, item.Pid, item.Location, item.Prefrences, item.Uid)}
+                      <View style={{ width: '100%', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row' }}>
+                        {this.datetimecalc(item.Date) == 0 ?
+                          <Text style={{ marginLeft: 15, color: '#35307d', fontWeight: 'bold', fontSize: 12 }}>Today</Text> :
+                          <Text style={{ marginLeft: 10, color: '#35307d', fontWeight: 'bold', fontSize: 12 }}>{this.datetimecalc(item.Date)} Day-ago</Text>}
+                        <LinearGradient
+                          colors={['#ffb198', '#ff8892', '#ff498a']}
+                          style={{
+                            borderRadius: 15,
+                            width: '30%',
+
+                          }}
+                          start={{ x: 0, y: 0.5 }}
+                          end={{ x: 1, y: 0.5 }}
                         >
-                          <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
-                        </TouchableOpacity>
-
-
-                        {auth().currentUser.email == item.Pid ?
                           <TouchableOpacity
-                            style={[styles.button, { backgroundColor: '#74c69d', opacity: 0.4 }]}
-                            onPress={() => Alert.alert("Can't Bid!", 'this work is posted by you..', [
-                              { text: 'Okay' }
-                            ])}
+                            style={{ width: '100%', padding: 10, borderRadius: 15, alignItems: 'center' }}
+                            onPress={() => this.setProjectDetailModal(item.IconUrl, item.Title, item.Budget, item.Description, item.Uid, this.props.route.params.CategoryName, item.Pid, item.Location, item.Prefrences, item.Uid)}
                           >
-                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
+                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Details</Text>
                           </TouchableOpacity>
-                          :
-                          <TouchableOpacity
-                            style={[styles.button, { backgroundColor: '#74c69d' }]}
-                            onPress={() => this.setBidDetailModal(item.Uid, this.props.route.params.CategoryName, item.Pid)}
-                          >
-                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Bid</Text>
-                          </TouchableOpacity>}
+                        </LinearGradient>
                       </View>
 
                     </ImageBackground>
@@ -602,15 +661,15 @@ const styles = StyleSheet.create({
 
   },
   icon: {
-    height: 100,
-    width: 100,
-    borderRadius: 50,
+    height: 70,
+    width: 70,
+    borderRadius: 20,
   },
   projectView: {
     marginTop: 10,
     marginBottom: 10,
-    marginLeft: '5%',
-    width: '90%',
+    marginLeft: '2.5%',
+    width: '95%',
     shadowColor: "rgb(125, 134, 248)",
     shadowOffset: {
       height: 20,
@@ -621,21 +680,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 0,
     backgroundColor: '#fFf',
-    borderBottomLeftRadius: 35,
-    borderBottomRightRadius: 35
+    borderRadius: 20
   },
   button: {
-    width: '40%',
-    padding: 10,
-    borderRadius: 15,
+    width: '50%',
+    padding: 15,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   modal: {
-    width: '95%',
-    height: '80%',
-    borderRadius: 20,
+    marginTop: '25%',
+    flex: 1,
+    borderRadius: 30,
     backgroundColor: '#FFF',
     padding: 15,
   },
@@ -647,8 +705,9 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 15,
-    borderBottomColor: '#ff7aa2',
+    borderBottomColor: '#dbecf7',
     borderBottomWidth: 0.5,
+    flexDirection: 'row'
   },
   title: {
     color: '#081c15',

@@ -157,7 +157,7 @@ class LoginScreen extends Component {
                         <TouchableOpacity
                             onPress={() => this.props.navigation.goBack()}
                             style={{
-                                marginTop: 25,
+                                marginTop: 30,
                                 marginLeft: 15
                             }}
                         >
@@ -356,6 +356,7 @@ const styles = StyleSheet.create({
     },
     image2: {
         flex: 1,
+        justifyContent:'space-evenly'
     },
     image2_imageStyle: {
         width: Dimensions.get('window').width,
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     logview: {
-        height: '50%',
+        height:'50%',
         width: '80%',
         marginLeft: '10%',
         marginTop: 40,

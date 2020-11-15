@@ -19,19 +19,100 @@ import Modal from 'react-native-modal';
 import auth from '@react-native-firebase/auth';
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { AirbnbRating, Rating } from 'react-native-ratings';
 import LottieView from 'lottie-react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 // const ProposalsRef = firestore().collection('UserData').doc(this.state.useremail+'').collection('Proposals')
 let onEndReachedCalledDuringMomentum = false;
 
 
-const hired = () => {
-  return <LottieView source={require('../assets/tick.json')} autoPlay loop />
+const Profilesection1 = (props) => {
+  return <LinearGradient
+    colors={['#F8CDDA', '#1D2B64']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={{
+      marginTop: 15,
+      marginLeft: '2.5%',
+      width: '95%',
+      borderRadius: 20,
+      padding: 15,
+      justifyContent: 'space-evenly',
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 7,
+      },
+      shadowOpacity: 0.41,
+      shadowRadius: 9.11,
+
+      elevation: 14,
+    }}
+  >
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+      <Image
+        source={require('../assets/profile.png')}
+        style={{
+          height: 100,
+          width: 100,
+          borderRadius: 50
+        }}
+      />
+      <View>
+        <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#FFF' }}>{props.name}</Text>
+        <Text style={{ fontSize: 12, color: '#FFF' }}>@{props.gmail.slice(0, -11)}</Text>
+      </View>
+    </View>
+    <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+      <View style={{
+        backgroundColor: '#FFF',
+        padding: 10,
+        borderRadius: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+
+      }}>
+        <Image
+          source={require('../assets/star.png')}
+          style={{ height: 50, width: 50 }}
+        />
+        <View style={{ marginLeft: 5, alignItems: 'center' }}>
+          <Text style={{ color: '#07b99d', fontSize: 12 }}>{props.rating}</Text>
+          <Text style={{ color: '#07b99d', fontSize: 12 }}>Rating</Text>
+        </View>
+      </View>
+      <View style={{
+        backgroundColor: '#FFF',
+        padding: 10,
+        borderRadius: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly'
+      }}>
+        <Image
+          source={require('../assets/review.png')}
+          style={{ height: 45, width: 45 }}
+        />
+        <View style={{ marginLeft: 5, alignItems: 'center' }}>
+          <Text style={{ color: '#ffdc00', fontSize: 12 }}>{props.ratingcount}</Text>
+          <Text style={{ color: '#fd6000', fontSize: 12 }}>reviews</Text>
+        </View>
+      </View>
+
+    </View>
+    <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
+      <Text style={{ color: '#F0F2F0', fontSize: 12 }}>
+        {props.description}
+      </Text>
+    </View>
+  </LinearGradient>
 }
+
+
 
 export default class PrposalsScreen extends Component {
 
@@ -48,8 +129,11 @@ export default class PrposalsScreen extends Component {
       useremail: '',
       //state variable for bidder detail
       loadingbidderinfo: false,
+      name: '',
       skills: '',
       rating: 0,
+      ratingcount: 0,
+      reviews: [],
       uname: '',
       description: '',
       timelimit: '',
@@ -172,8 +256,9 @@ export default class PrposalsScreen extends Component {
       .on('value', snapshot => {
         console.log('User data: ', snapshot.val());
         this.setState({
-          skills: snapshot.val()['skills'].join(', '),
+          name: snapshot.val()['name'],
           rating: snapshot.val()['rating'],
+          ratingcount: snapshot.val()['ratingcount'],
           uname: bidid,
           description: Description,
           projectid: id,
@@ -183,7 +268,14 @@ export default class PrposalsScreen extends Component {
           selected: Selected,
           loadingbidderinfo: false
         })
-
+        if (!(typeof snapshot.val()['skills'] == 'undefined')) {
+          this.setState({ skills: snapshot.val()['skills'].join(', ') })
+        }
+        let newreviews = []
+        for (let key in snapshot.val()['review']) {
+          newreviews.push(snapshot.val()['review'][key]);
+        }
+        this.setState({ reviews: newreviews });
 
       });
 
@@ -363,7 +455,7 @@ export default class PrposalsScreen extends Component {
               animationIn={"zoomInDown"}
               animationOut={"zoomOutUp"}
               useNativeDriver={true}
-              style={{ alignItems: 'center' }}
+              style={{ alignItems: 'center', margin: 0 }}
             >
 
               <View style={styles.modal}>
@@ -378,85 +470,133 @@ export default class PrposalsScreen extends Component {
               animationIn={"zoomInDown"}
               animationOut={"zoomOutUp"}
               useNativeDriver={true}
-              style={{ alignItems: 'center' }}
+              style={{ alignItems: 'center', margin: 0 }}
             >
-              <View style={styles.modal}>
-                <ImageBackground
-                  source={require('../assets/BidderDetails.png')}
-                  resizeMode='stretch'
-                  style={styles.image2}
-                  imageStyle={styles.image2_imageStyle}
-                >
-
+              <View style={[styles.modal, { padding: 0 }]}>
+                <View style={styles.topview}>
                   <TouchableOpacity
-                    style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}
-                    onPress={this.toggglebidderdetailmodal}
+                    onPress={() => this.toggglebidderdetailmodal()}
                   >
-                    <Icon
-                      name='circle-with-cross'
-                      size={22}
+                    <MaterialCommunityIcons
+                      name='arrow-left'
+                      size={25}
+                      color='#15223D'
                     />
                   </TouchableOpacity>
-                </ImageBackground>
+                  <Text style={{
+                    fontSize: 18,
+                    color: '#7d86f8',
+                    fontWeight: 'bold',
+                  }}>Bidders Detail</Text>
+                  <Image style={{ height: 30, width: 30, borderRadius: 15 }} source={require('../assets/profile.png')} />
+                </View>
                 <ScrollView
                   showsVerticalScrollIndicator={false}
                 >
+                  <Profilesection1
+                    name={this.state.name}
+                    rating={this.state.rating}
+                    reviews={this.state.ratingcount}
+                    gmail={this.state.uname}
+                    description={'The definition of a description is a statement that gives details about someone or something. An example of description is a story about the places visited on a family trip. noun.'}
+
+                  />
+
                   <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    width: '95%',
+                    marginLeft: '2.5%',
                     justifyContent: 'space-evenly',
-                    padding: 10,
-                    marginTop: 20
-                  }}>
-                    <FontAwesome
-                      name='user-circle-o'
-                      size={70}
-                      color='#15223D'
-                    />
-                    <View style={{
-                      alignItems: 'center',
-                    }}>
-                      <Text style={styles.title}>@{this.state.uname.slice(0, -10)}</Text>
-                      <AirbnbRating
-                        count={5}
-                        reviews={["Bad", "OK", "Good", "Very Good", "Amazing"]}
-                        defaultRating={this.state.rating}
-                        size={20}
-                        isDisabled={true}
-                        reviewSize={0}
+                    padding: 15,
+                    borderBottomLeftRadius:20,
+                    borderTopRightRadius:20,
+
+                  }}><View style={styles.section}>
+                      <Image
+                        source={require('../assets/proposal.png')}
+                        style={{ height: 40, width: 40 }}
                       />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10, fontSize: 20 }} >Proposal</Text>
+
                     </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/004-id-1.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >ProjectId   :  </Text>
+                      <Text style={{ color: '#a0caeb', marginLeft: 10 }}>{this.state.projectid}</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/icons8-rupee-100.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Rate   :  </Text>
+                      <Text style={{ color: '#fc9454', marginLeft: 10, fontWeight: 'bold' }}>{this.state.budget}Rs</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/002-clock.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Time   :  </Text>
+                      <Text style={{ color: '#373796', marginLeft: 10 }}>{this.state.timelimit}</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/001-experience.png')}
+                        style={{ height: 20, width: 20 }}
+                      />
+                      <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Experience   :  </Text>
+                      <Text style={{ color: '#e2a876', marginLeft: 10 }}>{this.state.skills}</Text>
+                    </View>
+                    <View style={[styles.section, { flexDirection: 'column' }]}>
+                      <View style={{flexDirection:'row',justifyContent:'flex-start'}}>
+                        <Image
+                          source={require('../assets/003-id.png')}
+                          style={{ height: 20, width: 20 }}
+                        />
+                        <Text style={{ color: '#1D2B64', marginLeft: 10 }} >Description  : </Text>
+                      </View>    
+                        <Text style={{ color: '#7f95b8',marginTop:10 ,marginLeft: 10}}>{this.state.description}</Text>
+                    </View>
+                    <View style={styles.section}>
+                      <Image
+                        source={require('../assets/review.png')}
+                        style={{ height: 40, width: 40 }}
+                      />
+                      <Text style={{ color: '#fd6000', marginLeft: 10, fontSize: 20 }} >Reviews</Text>
+                    </View>
+                    <FlatList
+                      data={this.state.reviews}
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={({ item }) => (
+                        <View style={{
+                          borderColor: '#dbecf7',
+                          borderBottomWidth: 0.5,
+                          padding: 15,
+                          borderRadius: 20
+                        }}>
+                          <Text style={{ fontWeight: 'bold', color: '#15223D' }}>@{item.Uname}</Text>
+                          <Text style={{ marginTop: 5,color:'#7f95b8' }}>{item.review}</Text>
+                        </View>
+                      )}
+
+                    />
                   </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Project Id  :   </Text>
-                    <Text style={{ width: '60%', color: '#15223D' }}>{this.state.projectid}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Description :   </Text>
-                    <Text style={{ width: '60%', color: '#15223D' }}>{this.state.description}</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Rate :   </Text>
-                    <Text style={{ width: '60%', color: '#74c69d' }}>{this.state.budget} Rs</Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Time :   </Text>
-                    <Text style={{ width: '60%', color: '#15223D' }}>{this.state.timelimit} </Text>
-                  </View>
-                  <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-                    <Text style={styles.title}>Skills :   </Text>
-                    <Text style={{ width: '60%', color: '#15223D' }}>{this.state.skills} </Text>
-                  </View>
+                  
                 </ScrollView>
+                
+               
                 {this.state.selected ?
                   <TouchableOpacity
-                    style={[styles.button, { backgroundColor: '#74c69d' }]}
+                    style={[styles.button, {  width: '40%', borderColor:'#7d86f8',borderWidth:1, marginLeft: '30%',borderRadius:50 ,marginBottom:10}]}
                     onPress={() => this.editreview(this.state.uname, this.state.projectid)}
                   >
-                    <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Review</Text>
+                    <Text style={{ color: '#7d86f8', fontWeight: 'bold', fontSize: 15 }}>Rate</Text>
                   </TouchableOpacity> :
                   <TouchableOpacity
-                    style={[styles.button, { width: '40%', backgroundColor: '#74c69d', marginLeft: '30%', marginTop: 15 }]}
+                    style={[styles.button, { width: '40%', backgroundColor: '#74c69d', marginLeft: '30%',borderRadius:50 ,marginBottom:10}]}
                     onPress={() => this.checkhirebidder(this.state.uname, this.state.projectid)}
                   >
                     <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>
@@ -581,89 +721,89 @@ export default class PrposalsScreen extends Component {
             {/**********************************Lists of porposals*************************************************/}
 
 
-            {this.state.poroposals.length == 0?
-            <View style={{height:'90%' ,alignItems: 'center',backgroundColor:'#FFF' }}>
+            {this.state.poroposals.length == 0 ?
+              <View style={{ height: '90%', alignItems: 'center', backgroundColor: '#FFF' }}>
                 <LottieView source={require('../assets/empty-box.json')} loop={false} autoPlay />
-                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC',marginTop:'10%' }}>No proposals yet..</Text>
-              </View>:
-            <FlatList
-              vertical
-              showsVerticalScrollIndicator={false}
-              data={this.state.poroposals}
-              keyExtractor={item => item.Uid.toString()}
-              renderItem={({ item }) => (
-                <Animatable.View
-                  animation='bounceInUp'
-                  duration={600}
-                  style={styles.projectView}
-                >
-                  <ImageBackground
-                    source={require('../assets/ProposalBKND.png')}
-                    resizeMode='stretch'
-                    style={{ padding: 10 }}
-                    imageStyle={{ height: '70%', borderRadius: 20 }}
+                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#CCC', marginTop: '10%' }}>No proposals yet..</Text>
+              </View> :
+              <FlatList
+                vertical
+                showsVerticalScrollIndicator={false}
+                data={this.state.poroposals}
+                keyExtractor={item => item.Uid.toString()}
+                renderItem={({ item }) => (
+                  <Animatable.View
+                    animation='bounceInUp'
+                    duration={600}
+                    style={styles.projectView}
                   >
-                    <View style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      alignItems: 'center',
-                    }} >
-                      <View style={{ marginLeft: 10, width: '65%' }}>
-                        <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Description.slice(0, 35)}...</Text>
-                        <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Rate} Rs</Text>
+                    <ImageBackground
+                      source={require('../assets/ProposalBKND.png')}
+                      resizeMode='stretch'
+                      style={{ padding: 10 }}
+                      imageStyle={{ height: '70%', borderRadius: 20 }}
+                    >
+                      <View style={{
+                        flexDirection: 'row',
+                        padding: 5,
+                        alignItems: 'center',
+                      }} >
+                        <View style={{ marginLeft: 10, width: '65%' }}>
+                          <Text style={{ color: '#1d3557', fontWeight: 'bold' }}>{item.Description.slice(0, 35)}...</Text>
+                          <Text style={{ color: '#3cba54', marginTop: 10 }}>{item.Rate} Rs</Text>
+                        </View>
                       </View>
-                    </View>
-                    <View style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      alignItems: 'center',
-                      justifyContent: 'space-evenly',
-                      marginTop: 10
-                    }}>
-                      <TouchableOpacity
-                        style={[styles.button, { backgroundColor: '#ff7aa2' }]}
-                        onPress={() => this.setbidderdetail(item.BidId, item.Description, item.Uid, item.Rate, item.TimeLimit, item.Selected)}
-                      >
-                        <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Bidders Details</Text>
-                      </TouchableOpacity>
-
-
-                      {item.Selected ?
+                      <View style={{
+                        flexDirection: 'row',
+                        padding: 5,
+                        alignItems: 'center',
+                        justifyContent: 'space-evenly',
+                        marginTop: 10
+                      }}>
                         <TouchableOpacity
-                          style={[styles.button, { backgroundColor: '#74c69d' }]}
-                          onPress={() => this.editreview(item.BidId, item.Uid)}
+                          style={[styles.button, { backgroundColor: '#ff7aa2' }]}
+                          onPress={() => this.setbidderdetail(item.BidId, item.Description, item.Uid, item.Rate, item.TimeLimit, item.Selected)}
                         >
-                          <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Review</Text>
-                        </TouchableOpacity> :
-                        <TouchableOpacity
-                          style={[styles.button, { backgroundColor: '#74c69d' }]}
-                          onPress={() => this.checkhirebidder(item.BidId, item.Uid)}
-                        >
+                          <Text style={{ color: '#522e38', fontWeight: 'bold', fontSize: 15 }}>Bidders Details</Text>
+                        </TouchableOpacity>
 
-                          <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>
-                        </TouchableOpacity>}
-                    </View>
 
-                  </ImageBackground>
-                </Animatable.View>
-              )}
-              ListFooterComponent={this.renderFooter}
-              refreshControl={
-                <RefreshControl
-                  refreshing={this.state.isLoading}
-                  onRefresh={this.onRefresh}
-                />
-              }
-              initialNumToRender={2}
-              onEndReachedThreshold={0.1}
-              onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum = false; }}
-              onEndReached={() => {
-                if (!onEndReachedCalledDuringMomentum && !this.state.isLoading) {
-                  this.getMore();
+                        {item.Selected ?
+                          <TouchableOpacity
+                            style={[styles.button, {  borderColor:'#7d86f8',borderWidth:1,borderRadius:20}] }
+                            onPress={() => this.editreview(item.BidId, item.Uid)}
+                          >
+                            <Text style={{ color: '#7d86f8', fontWeight: 'bold', fontSize: 15 }}>Rate</Text>
+                          </TouchableOpacity> :
+                          <TouchableOpacity
+                            style={[styles.button, { backgroundColor: '#74c69d' }]}
+                            onPress={() => this.checkhirebidder(item.BidId, item.Uid)}
+                          >
+
+                            <Text style={{ color: '#081c15', fontWeight: 'bold', fontSize: 15 }}>Hire</Text>
+                          </TouchableOpacity>}
+                      </View>
+
+                    </ImageBackground>
+                  </Animatable.View>
+                )}
+                ListFooterComponent={this.renderFooter}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={this.state.isLoading}
+                    onRefresh={this.onRefresh}
+                  />
                 }
-              }
-              }
-            />}
+                initialNumToRender={2}
+                onEndReachedThreshold={0.1}
+                onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum = false; }}
+                onEndReached={() => {
+                  if (!onEndReachedCalledDuringMomentum && !this.state.isLoading) {
+                    this.getMore();
+                  }
+                }
+                }
+              />}
           </View>
         )
       default:
@@ -727,9 +867,8 @@ const styles = StyleSheet.create({
   },
 
   modal: {
-    width: '95%',
-    height: '80%',
-    borderRadius: 20,
+    height: '100%',
+    width: '100%',
     backgroundColor: '#FFF',
     padding: 15,
   },
@@ -741,8 +880,9 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 15,
-    borderBottomColor: '#ff7aa2',
+    borderBottomColor: '#dbecf7',
     borderBottomWidth: 0.5,
+    flexDirection: 'row'
   },
   title: {
     color: '#081c15',

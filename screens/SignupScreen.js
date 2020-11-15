@@ -11,6 +11,7 @@ import {
     ActivityIndicator
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import database from '@react-native-firebase/database';
@@ -24,6 +25,7 @@ import { CirclesLoader } from 'react-native-indicator';
 class SignupScreen extends Component {
 
     state = {
+        name:'',
         email: '',
         password: '',
         error: '',
@@ -39,6 +41,24 @@ class SignupScreen extends Component {
       
         contactno:'',
         isValidno:null
+    }
+
+    namechange = (val) => {
+      
+            this.setState({
+                name:val
+            })
+    
+        
+    } 
+
+    checkname = () => {
+        if (this.state.name.length < 5 ) {
+            Alert.alert('Wrong Input!', 'Enter valid name', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
     }
 
     textInputChange = (val) => {
@@ -133,8 +153,15 @@ class SignupScreen extends Component {
 
     signUpHandle = () => {
 
+        if (this.state.name.length < 5 ) {
+            Alert.alert('Wrong Input!', 'Enter valid name', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
+
         if (this.state.email == 0 || this.state.password == 0 || this.state.confirm_password == 0) {
-            Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
+            Alert.alert('Wrong Input!', 'Email or password field cannot be empty.', [
                 { text: 'Okay' }
             ]);
             return;
@@ -191,6 +218,7 @@ class SignupScreen extends Component {
 
 
         database().ref('users/' + this.state.email.slice(0, -4)+ '').set({
+            name:this.state.name,
             phoneno:this.state.contactno,
             review:[],
             rating:0,
@@ -251,19 +279,40 @@ class SignupScreen extends Component {
                         useNativeDriver={true}
                         duration={1000}
                         style={styles.logview}
-                    >{this.state.loading ? <View style={{
-                        flex: 1,
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }} >
-                        <CirclesLoader color='#7133D1' />
-                    </View> :
+                    >
                         <ScrollView showsVerticalScrollIndicator={false}>
-                            <Text style={styles.text_footer}>Email</Text>
+                        <Text style={styles.text_footer}>Full Name</Text>
                             <View style={[styles.action,{borderBottomColor:'#f2f2f2',borderBottomWidth:1}]}>
                                 <FontAwesome
                                     name="user-o"
                                     color="#4285F4"
+                                    size={20}
+                                />
+                                <TextInput
+                                    placeholder="Enter your full name"
+                                    style={styles.textInput}
+                                    autoCapitalize="none"
+                                    onChangeText={this.namechange}
+                                    value={this.state.name}
+                                    onEndEditing={this.checkname}
+                                />
+                                {this.state.name.length >= 5 ?
+                                    <Animatable.View
+                                        animation="bounceIn"
+                                    >
+                                        <Feather
+                                            name="check-circle"
+                                            color="green"
+                                            size={20}
+                                        />
+                                    </Animatable.View>
+                                    : null}
+                            </View>
+                            <Text style={styles.text_footer}>Email</Text>
+                            <View style={[styles.action,{borderBottomColor:'#f2f2f2',borderBottomWidth:1}]}>
+                                <Fontisto
+                                    name="email"
+                                    color="#ff6666"
                                     size={20}
                                 />
                                 <TextInput
@@ -296,6 +345,7 @@ class SignupScreen extends Component {
                                 <TextInput
                                     placeholder="Enter 10 digti no."
                                     style={styles.textInput}
+                                    keyboardType='numeric'
                                     autoCapitalize="none"
                                     onChangeText={this.contactInputChange}
                                     value={this.state.contactno}
@@ -455,7 +505,7 @@ class SignupScreen extends Component {
                                 </TouchableOpacity>
                             </View>
 
-                        </ScrollView>}
+                        </ScrollView>
                     </Animatable.View>
                     <Animatable.View
                         animation='bounceInUp'
@@ -468,7 +518,7 @@ class SignupScreen extends Component {
                                 flexDirection: 'row',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                marginTop: 10
+                               
                             }}
                         >
                             <Text style={{
@@ -499,10 +549,11 @@ class SignupScreen extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+       
     },
     image2: {
-        flex: 1,
+        flex: 1, justifyContent:'space-evenly'
     },
     image2_imageStyle: {
         width: Dimensions.get('window').width,
@@ -530,7 +581,7 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     logview: {
-        height: '80%',
+        height:'80%',
         width: '80%',
         marginLeft: '10%',
         marginTop: 10,

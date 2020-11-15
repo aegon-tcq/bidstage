@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import auth from '@react-native-firebase/auth';
+import ProfileDetail from '../Components/ProfileDetail.js';
 
 
 const SplashScreen = ({ navigation }) => {
@@ -107,7 +107,7 @@ const SplashScreen = ({ navigation }) => {
     </Animatable.View>
 
   );
-  // return <PhoneSignIn />
+  
 }
 
 const styles = StyleSheet.create({
