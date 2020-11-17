@@ -431,14 +431,16 @@ export default class ProjectListingScreen extends Component {
               style={{ margin: 0 }}
             >
               <View style={[styles.modal]}>
-                <ImageBackground
-                  source={require('../assets/SubmitBidForm.png')}
-                  resizeMode='stretch'
-                  style={styles.image2}
-                  imageStyle={styles.image2_imageStyle}
-                >
-
-                </ImageBackground>
+              <View style={styles.section}>
+                      <Image
+                        source={require('../assets/legal.png')}
+                        style={{ height: 40, width: 40 }}
+                      />
+                      <View>
+                      <Text style={{ color: '#1D2B64', marginLeft: 10, fontSize: 20 }} >Place Bid</Text>
+                      <Text style={{color:'#CCC'}}>submit Your Proposal</Text>
+                      </View>
+                    </View>
                 <ScrollView
                   showsVerticalScrollIndicator={false}
                   style={{ padding: 15 }}

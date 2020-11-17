@@ -335,7 +335,7 @@ export default class Myprojects extends Component {
         this.setState({
           Oname: snapshot.val()['name'],
           Ophoneno: snapshot.val()['phoneno'],
-          Odescription: snapshot.val()['description'],
+          Odescription: snapshot.val()['about'],
           Oemailid: ownerid,
           uid: ownerid,
           Orating: snapshot.val()['rating'],

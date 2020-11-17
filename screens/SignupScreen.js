@@ -3,6 +3,7 @@ import {
     StyleSheet,
     View,
     TextInput,
+    Image,
     Text,
     TouchableOpacity,
     Dimensions, Alert,
@@ -16,7 +17,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
-import { CirclesLoader } from 'react-native-indicator';
+
 
 
 
@@ -25,8 +26,9 @@ import { CirclesLoader } from 'react-native-indicator';
 class SignupScreen extends Component {
 
     state = {
-        name:'',
+        name: '',
         email: '',
+        about: '',
         password: '',
         error: '',
         confirm_password: '',
@@ -38,22 +40,22 @@ class SignupScreen extends Component {
         pswd_check: true,
         loading: false,
 
-      
-        contactno:'',
-        isValidno:null
+
+        contactno: '',
+        isValidno: null
     }
 
     namechange = (val) => {
-      
-            this.setState({
-                name:val
-            })
-    
-        
-    } 
+
+        this.setState({
+            name: val
+        })
+
+
+    }
 
     checkname = () => {
-        if (this.state.name.length < 5 ) {
+        if (this.state.name.length < 5) {
             Alert.alert('Wrong Input!', 'Enter valid name', [
                 { text: 'Edit' }
             ]);
@@ -85,16 +87,27 @@ class SignupScreen extends Component {
         }
     }
     contactInputChange = (val) => {
-       
-            this.setState({
-                contactno:val,
-                isValidno:true
-            })
-        
+
+        this.setState({
+            contactno: val,
+            isValidno: true
+        })
+
     }
     checkContactno = () => {
         if (this.state.contactno.length != 10) {
             Alert.alert('Wrong Input!', 'Enter valid phone no', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
+    }
+    aboutInputChange = (val) => {
+        this.setState({ about: val })
+    }
+    checkAbout = () => {
+        if (this.state.about.length == 0) {
+            Alert.alert('Wrong Input!', 'Enter something about yourslef', [
                 { text: 'Edit' }
             ]);
             return;
@@ -153,7 +166,7 @@ class SignupScreen extends Component {
 
     signUpHandle = () => {
 
-        if (this.state.name.length < 5 ) {
+        if (this.state.name.length < 5) {
             Alert.alert('Wrong Input!', 'Enter valid name', [
                 { text: 'Edit' }
             ]);
@@ -172,9 +185,15 @@ class SignupScreen extends Component {
             ]);
             return;
         }
-      
+
         if (this.state.contactno.length != 10) {
             Alert.alert('Wrong Input!', 'Enter 10 digit phone no..!', [
+                { text: 'Edit' }
+            ]);
+            return;
+        }
+        if (this.state.about.length == 0) {
+            Alert.alert('Wrong Input!', 'Enter something about yourslef', [
                 { text: 'Edit' }
             ]);
             return;
@@ -217,14 +236,15 @@ class SignupScreen extends Component {
     onLoginSuccess = () => {
 
 
-        database().ref('users/' + this.state.email.slice(0, -4)+ '').set({
-            name:this.state.name,
-            phoneno:this.state.contactno,
-            review:[],
-            rating:0,
-            ratingcount:0,
-          });
-          console.log('skills',data)
+        database().ref('users/' + this.state.email.slice(0, -4) + '').set({
+            name: this.state.name,
+            phoneno: this.state.contactno,
+            review: [],
+            rating: 0,
+            ratingcount: 0,
+            about:this.state.about
+        });
+        console.log('skills', data)
         this.setState({
             error: '',
             loading: false
@@ -232,9 +252,9 @@ class SignupScreen extends Component {
         console.log(this.state.selectedItems)
     }
 
-    
+
     render() {
-       
+
 
         return (
             <View style={styles.container}>
@@ -281,12 +301,11 @@ class SignupScreen extends Component {
                         style={styles.logview}
                     >
                         <ScrollView showsVerticalScrollIndicator={false}>
-                        <Text style={styles.text_footer}>Full Name</Text>
-                            <View style={[styles.action,{borderBottomColor:'#f2f2f2',borderBottomWidth:1}]}>
-                                <FontAwesome
-                                    name="user-o"
-                                    color="#4285F4"
-                                    size={20}
+                            <Text style={styles.text_footer}>Full Name</Text>
+                            <View style={[styles.action, { borderBottomColor: '#f2f2f2', borderBottomWidth: 1 }]}>
+                                <Image
+                                    source={require('../assets/profile.png')}
+                                    style={{ height: 20, width: 20 }}
                                 />
                                 <TextInput
                                     placeholder="Enter your full name"
@@ -309,11 +328,10 @@ class SignupScreen extends Component {
                                     : null}
                             </View>
                             <Text style={styles.text_footer}>Email</Text>
-                            <View style={[styles.action,{borderBottomColor:'#f2f2f2',borderBottomWidth:1}]}>
-                                <Fontisto
-                                    name="email"
-                                    color="#ff6666"
-                                    size={20}
+                            <View style={[styles.action, { borderBottomColor: '#f2f2f2', borderBottomWidth: 1 }]}>
+                                <Image
+                                    source={require('../assets/message.png')}
+                                    style={{ height: 20, width: 20 }}
                                 />
                                 <TextInput
                                     placeholder="Enter your email"
@@ -336,14 +354,13 @@ class SignupScreen extends Component {
                                     : null}
                             </View>
                             <Text style={styles.text_footer}>Phone no.</Text>
-                            <View style={[styles.action,{borderBottomColor:'#f2f2f2',borderBottomWidth:1}]}>
-                                <FontAwesome
-                                    name="phone"
-                                    color="#0F9D58"
-                                    size={20}
+                            <View style={[styles.action, { borderBottomColor: '#f2f2f2', borderBottomWidth: 1 }]}>
+                                <Image
+                                    source={require('../assets/phone-call.png')}
+                                    style={{ height: 20, width: 20 }}
                                 />
                                 <TextInput
-                                    placeholder="Enter 10 digti no."
+                                    placeholder="Enter 10 digit no."
                                     style={styles.textInput}
                                     keyboardType='numeric'
                                     autoCapitalize="none"
@@ -363,15 +380,42 @@ class SignupScreen extends Component {
                                     </Animatable.View>
                                     : null}
                             </View>
-                           
+                            <Text style={styles.text_footer}>About</Text>
+                            <View style={[styles.action, { borderBottomColor: '#f2f2f2', borderBottomWidth: 1 }]}>
+                                <Image
+                                    source={require('../assets/004-floppy-disk.png')}
+                                    style={{ height: 20, width: 20 }}
+                                />
+                                <TextInput
+                                    placeholder="Enter something about yourself"
+                                    style={styles.textInput}
+                                    numberOfLines={2}
+                                    multiline={true}
+                                    autoCapitalize="none"
+                                    onChangeText={this.aboutInputChange}
+                                    value={this.state.about}
+                                    onEndEditing={this.checkAbout}
+                                />
+                                {this.state.about.length >= 50 ?
+                                    <Animatable.View
+                                        animation="bounceIn"
+                                    >
+                                        <Feather
+                                            name="check-circle"
+                                            color="green"
+                                            size={20}
+                                        />
+                                    </Animatable.View>
+                                    : null}
+                            </View>
+
                             <Text style={[styles.text_footer, {
                                 marginTop: 10
                             }]}>Password</Text>
                             <View style={styles.action}>
-                                <Feather
-                                    name="lock"
-                                    color="#DB4437"
-                                    size={20}
+                                <Image
+                                    source={require('../assets/password.png')}
+                                    style={{ height: 20, width: 20 }}
                                 />
                                 <TextInput
                                     placeholder="Your Password"
@@ -409,10 +453,9 @@ class SignupScreen extends Component {
                                 marginTop: 10
                             }]}>Confirm Password</Text>
                             <View style={styles.action}>
-                                <Feather
-                                    name="lock"
-                                    color="#DB4437"
-                                    size={20}
+                                <Image
+                                    source={require('../assets/password.png')}
+                                    style={{ height: 20, width: 20 }}
                                 />
                                 <TextInput
                                     placeholder="Confirm Your Password"
@@ -518,7 +561,7 @@ class SignupScreen extends Component {
                                 flexDirection: 'row',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                               
+
                             }}
                         >
                             <Text style={{
@@ -550,10 +593,10 @@ class SignupScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-       
+
     },
     image2: {
-        flex: 1, justifyContent:'space-evenly'
+        flex: 1, justifyContent: 'space-evenly'
     },
     image2_imageStyle: {
         width: Dimensions.get('window').width,
@@ -581,7 +624,7 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     logview: {
-        height:'80%',
+        height: '80%',
         width: '80%',
         marginLeft: '10%',
         marginTop: 10,
@@ -597,7 +640,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 0,
         padding: 20,
-        paddingBottom:0
+        paddingBottom: 0
     },
     action: {
         flexDirection: 'row',

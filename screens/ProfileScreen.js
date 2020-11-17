@@ -201,6 +201,7 @@ export default class ProfileScreen extends Component {
       reviews: [],
       phone: '',
       cnameuid: [],
+      about:'',
       myprojects: [],
       projectdetail: {},
 
@@ -247,6 +248,7 @@ export default class ProfileScreen extends Component {
             .on('value', snapshot => {
               this.setState({
                 phone: snapshot.val()['phoneno'],
+                about:snapshot.val()['about'],
                 name: snapshot.val()['name'],
                 rating: snapshot.val()['rating'],
                 cnameuid: snapshot.val()['myprojects'],
@@ -484,9 +486,10 @@ export default class ProfileScreen extends Component {
               <Profilesection1
                 name={this.state.name}
                 rating={this.state.rating}
+                ratingcount={this.state.ratingcount}
                 reviews={this.state.ratingcount}
                 gmail={auth().currentUser.email}
-                description={'The definition of a description is a statement that gives details about someone or something. An example of description is a story about the places visited on a family trip. noun.'}
+                description={this.state.about}
               />
               <Profilesection3
                 phone={this.state.phone}

@@ -61,9 +61,9 @@ class App extends Component {
         return <BottomNavigator />
 
       default:
-        return <View style={{flex:1,alignItems:'center'}}>
-           <LottieView source={require('./assets/splash.json')} autoPlay loop={false} />
-           <Text style={{marginTop:'95%',color:'#7d86f8',fontWeight:'bold',fontSize:20}}>BidStage</Text>
+        return <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+           <LottieView source={require('./assets/splash.json')} style={{height:100,alignItems:'center',justifyContent:'center'}} autoPlay loop={false} />
+           <Text style={{color:'#7d86f8',fontWeight:'bold',fontSize:20}}>BidStage</Text>
         </View>
 
     }

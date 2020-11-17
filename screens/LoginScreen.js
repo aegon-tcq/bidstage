@@ -9,7 +9,8 @@ import {
     Alert,
     ImageBackground,
     ScrollView,
-    StatusBar
+    StatusBar,
+    Image
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -140,7 +141,7 @@ class LoginScreen extends Component {
 
         return (
             <View style={styles.container}>
-            <StatusBar barStyle='light-content' hidden={false} backgroundColor='#9d5cff' translucent={true} />
+                <StatusBar barStyle='light-content' hidden={false} backgroundColor='#9d5cff' translucent={true} />
                 <ImageBackground
                     source={require('../assets/contact-purple-top-right.png')}
                     resizeMode='stretch'
@@ -199,10 +200,9 @@ class LoginScreen extends Component {
                                     color: colors.text
                                 }]}>Email or Phone no.</Text>
                                 <View style={styles.action}>
-                                    <FontAwesome
-                                        name="user-o"
-                                        color={colors.text}
-                                        size={20}
+                                    <Image
+                                        source={require('../assets/profile.png')}
+                                        style={{ height: 20, width: 20 }}
                                     />
                                     <TextInput
                                         placeholder="Your Email"
@@ -232,10 +232,9 @@ class LoginScreen extends Component {
                                     marginTop: 5
                                 }]}>Password</Text>
                                 <View style={styles.action}>
-                                    <Feather
-                                        name="lock"
-                                        color={colors.text}
-                                        size={20}
+                                    <Image
+                                        source={require('../assets/password.png')}
+                                        style={{ height: 20, width: 20 }}
                                     />
                                     <TextInput
                                         placeholder="Your Password"
@@ -297,18 +296,18 @@ class LoginScreen extends Component {
                                         }}
                                         onPress={this.loginHandle}
                                     >
-                                            <View style={{
+                                        <View style={{
 
-                                                flexDirection: 'row',
-                                                justifyContent: 'space-between',
-                                            }}>
-                                                <Text style={styles.textSign}>LogIn</Text>
-                                                <FontAwesome
-                                                    name="arrow-circle-right"
-                                                    color='#FFF'
-                                                    size={20}
-                                                />
-                                            </View>
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                        }}>
+                                            <Text style={styles.textSign}>LogIn</Text>
+                                            <FontAwesome
+                                                name="arrow-circle-right"
+                                                color='#FFF'
+                                                size={20}
+                                            />
+                                        </View>
                                     </TouchableOpacity>
                                 </View>
                             </ScrollView>}
@@ -356,7 +355,7 @@ const styles = StyleSheet.create({
     },
     image2: {
         flex: 1,
-        justifyContent:'space-evenly'
+        justifyContent: 'space-evenly'
     },
     image2_imageStyle: {
         width: Dimensions.get('window').width,
@@ -380,7 +379,7 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     logview: {
-        height:'50%',
+        height: '50%',
         width: '80%',
         marginLeft: '10%',
         marginTop: 40,

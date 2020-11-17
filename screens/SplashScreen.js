@@ -13,13 +13,12 @@ import {
 } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import ProfileDetail from '../Components/ProfileDetail.js';
 
 
 const SplashScreen = ({ navigation }) => {
   return (
     <Animatable.View
-      animation='fadeInDown'
+      animation='zoomIn'
       duration={600}
       style={styles.container}
     >
@@ -30,10 +29,8 @@ const SplashScreen = ({ navigation }) => {
         style={styles.image2}
         imageStyle={styles.image2_imageStyle}
       >
-        <Animatable.View
-          animation='bounce'
-          useNativeDriver={true}
-          duration={900}
+        <View
+          
           style={{
             height: 200,
             width: 200,
@@ -47,13 +44,14 @@ const SplashScreen = ({ navigation }) => {
             elevation: 5,
             shadowOpacity: 0.42,
             shadowRadius: 0,
+            backgroundColor:'#FFF'
           }}>
           <Image
-            source={require('../assets/logos.png')}
+            source={require('../assets/auction.png')}
             style={styles.logo}
           ></Image>
 
-        </Animatable.View>
+        </View>
       </ImageBackground>
       <View style={styles.bottom}>
         <View style={{
@@ -66,16 +64,12 @@ const SplashScreen = ({ navigation }) => {
             <Text style={styles.post}>Post, Bid and Hire !</Text>
           </Animatable.View>
 
-          <Animatable.View
-            animation='fadeInRight'
-            useNativeDriver={true}
-            duration={1000}
-          >
+          
             <Text style={styles.txtbelow}>
               This is the best platform where you can get {"\n"}your work done in less
         money...
       </Text>
-          </Animatable.View>
+         
         </View>
         <View style={{
           marginTop: 25,
@@ -83,11 +77,7 @@ const SplashScreen = ({ navigation }) => {
           alignItems: 'center',
           justifyContent: 'flex-end'
         }}>
-          <Animatable.View
-            animation='zoomIn'
-            useNativeDriver={true}
-            duration={1000}
-          >
+          
             <TouchableOpacity
               style={styles.button}
               onPress={() => navigation.navigate('LoginScreen')}
@@ -101,7 +91,7 @@ const SplashScreen = ({ navigation }) => {
                 size={20}
               />
             </TouchableOpacity>
-          </Animatable.View>
+         
         </View>
       </View>
     </Animatable.View>
